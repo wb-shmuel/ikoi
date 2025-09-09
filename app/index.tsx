@@ -9,7 +9,7 @@ export default function DurationPicker() {
 
   const handleDurationSelect = (duration: SessionDuration) => {
     router.push({
-      pathname: '/session',
+      pathname: '/countdown',
       params: { duration: duration.toString() }
     });
   };

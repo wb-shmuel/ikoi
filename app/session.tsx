@@ -1,555 +1,546 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { Audio, ResizeMode, Video } from 'expo-av';
+import * as Haptics from 'expo-haptics';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  Dimensions,
   AppState,
   AppStateStatus,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Video, ResizeMode, AVPlaybackStatus, Audio } from 'expo-av';
-import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import * as Haptics from 'expo-haptics';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-
   Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming
 } from 'react-native-reanimated';
 
-import { QuickCalmColors } from '@/constants/QuickCalmColors';
-import type { SessionDuration, BreathingPhase, SessionState, BreathingConfig } from '@/types/QuickCalm';
+const SessionScreen: React.FC = () => {
+  const { duration: durationParam } = useLocalSearchParams();
+  const duration = parseInt(durationParam as string, 10);
+  const totalSeconds = duration * 60;
 
-const { width, height } = Dimensions.get('window');
-
-const BREATHING_CONFIG: BreathingConfig = {
-  inhale: 4,
-  hold: 7,
-  exhale: 8,
-};
-
-export default function SessionScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const duration = parseInt(params.duration as string) as SessionDuration;
+  const [timeRemaining, setTimeRemaining] = useState(totalSeconds);
+  const [isPaused, setIsPaused] = useState(false);
+  const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
+  const [phaseTime, setPhaseTime] = useState(4); // Start with 4 seconds for inhale
+  const [isSessionActive, setIsSessionActive] = useState(true);
 
   const videoRef = useRef<Video>(null);
-  const audioRef = useRef<Audio.Sound | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const breathingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const phaseTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [sessionState, setSessionState] = useState<SessionState>({
-    duration,
-    remainingTime: duration * 60, // Convert to seconds
-    isPlaying: true,
-    currentPhase: 'inhale',
-    phaseCountdown: BREATHING_CONFIG.inhale,
-    cycleCount: 0,
-  });
+  // Breathing animation
+  const breathingScale = useSharedValue(1);
+  const breathingOpacity = useSharedValue(0.3);
 
-
-
-  // Animation values
-  const circleScale = useSharedValue(0.8);
-  const circleOpacity = useSharedValue(0);
-
-  // Animated styles
-  const circleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: circleScale.value }],
-    opacity: circleOpacity.value,
+  const breathingStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: breathingScale.value }],
+    opacity: breathingOpacity.value,
   }));
 
-  const glowStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: circleScale.value * 1.2 }],
-    opacity: circleOpacity.value * 0.5,
-  }));
+  // Format time as MM:SS
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
-  // Initialize media and session
-  useEffect(() => {
-    initializeSession();
-    return cleanup;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Get phase text
+  const getPhaseText = () => {
+    switch (breathingPhase) {
+      case 'inhale':
+        return 'Take a deep breath';
+      case 'hold':
+        return 'Stop breathing';
+      case 'exhale':
+        return 'Exhale';
+      default:
+        return '';
+    }
+  };
 
-  // Handle app state changes
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription?.remove();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionState.isPlaying]);
+  // Get phase duration
+  const getPhaseDuration = (phase: 'inhale' | 'hold' | 'exhale') => {
+    switch (phase) {
+      case 'inhale':
+        return 4;
+      case 'hold':
+        return 7;
+      case 'exhale':
+        return 8;
+      default:
+        return 4;
+    }
+  };
+
+  // Breathing animation for each phase
+  const startPhaseAnimation = (phase: 'inhale' | 'hold' | 'exhale') => {
+    const duration = getPhaseDuration(phase) * 1000;
+
+    switch (phase) {
+      case 'inhale':
+        breathingScale.value = withTiming(1.3, {
+          duration,
+          easing: Easing.inOut(Easing.ease),
+        });
+        breathingOpacity.value = withTiming(0.8, {
+          duration,
+          easing: Easing.inOut(Easing.ease),
+        });
+        break;
+      case 'hold':
+        // Keep current scale and opacity
+        break;
+      case 'exhale':
+        breathingScale.value = withTiming(1, {
+          duration,
+          easing: Easing.inOut(Easing.ease),
+        });
+        breathingOpacity.value = withTiming(0.3, {
+          duration,
+          easing: Easing.inOut(Easing.ease),
+        });
+        break;
+    }
+  };
 
   const initializeSession = async () => {
     try {
+      console.log('Starting session initialization...');
+
       // Keep screen awake
       await activateKeepAwakeAsync();
 
-      // Load audio
-      const { sound } = await Audio.Sound.createAsync(require('@/assets/music.mp3'));
-      audioRef.current = sound;
-      
-      // Fade in audio
+      // Configure audio session for playbook
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        staysActiveInBackground: false,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+      });
+
+      // Load audio - always needed since React Native doesn't maintain audio across screens
+      console.log('Loading and starting audio...');
+      const { sound } = await Audio.Sound.createAsync(
+        require('@/assets/audio/music.mp3'),
+        {
+          shouldPlay: false,
+          isLooping: true,
+          volume: 0,
+        }
+      );
+
+      soundRef.current = sound;
+
+      // Start audio with fade-in
       await sound.setVolumeAsync(0);
       await sound.playAsync();
-      await sound.setIsLoopingAsync(true);
-      
-      // Fade in over 1.5 seconds
+
+      // Fade in audio over 1.5 seconds to volume 0.55
       const fadeSteps = 30;
-      const fadeIncrement = 0.55 / fadeSteps;
+      const fadeInterval = 1500 / fadeSteps;
+      const targetVolume = 0.55;
+
       for (let i = 0; i <= fadeSteps; i++) {
-        setTimeout(() => {
-          sound.setVolumeAsync(i * fadeIncrement);
-        }, (i * 1500) / fadeSteps);
+        const volume = (i / fadeSteps) * targetVolume;
+        await sound.setVolumeAsync(volume);
+        await new Promise(resolve => setTimeout(resolve, fadeInterval));
       }
 
-
-
-      // Start breathing animation and timer
-      startBreathingCycle();
-      startSessionTimer();
-
+      console.log('Session initialization completed');
     } catch (error) {
       console.error('Failed to initialize session:', error);
     }
   };
 
-  const handleAppStateChange = (nextAppState: AppStateStatus) => {
-    if (nextAppState === 'background' || nextAppState === 'inactive') {
-      if (sessionState.isPlaying) {
-        pauseSession();
-      }
-    } else if (nextAppState === 'active') {
-      // Auto-resume when returning to app
-      resumeSession();
-    }
-  };
-
   const startBreathingCycle = () => {
-    // Fade in the circle
-    circleOpacity.value = withTiming(1, { duration: 500 });
-    
-    // Start with inhale phase
-    updateBreathingPhase('inhale');
-  };
+    const runCycle = () => {
+      if (!isSessionActive) return;
 
-  const updateBreathingPhase = (phase: BreathingPhase) => {
-    const phaseDuration = BREATHING_CONFIG[phase] * 1000; // Convert to milliseconds
-    
-    setSessionState(prev => ({
-      ...prev,
-      currentPhase: phase,
-      phaseCountdown: BREATHING_CONFIG[phase],
-    }));
+      const phases: ('inhale' | 'hold' | 'exhale')[] = ['inhale', 'hold', 'exhale'];
+      let currentPhaseIndex = 0;
 
-    // Animate breathing circle
-    animateBreathingCircle(phase);
+      const nextPhase = () => {
+        if (!isSessionActive) return;
 
-    // Start haptic feedback
-    startHapticFeedback(phase);
+        const currentPhase = phases[currentPhaseIndex];
+        const phaseDuration = getPhaseDuration(currentPhase);
 
-    // Start phase countdown
-    startPhaseCountdown(phase);
+        setBreathingPhase(currentPhase);
+        setPhaseTime(phaseDuration);
+        startPhaseAnimation(currentPhase);
 
-    // Schedule next phase
-    breathingTimerRef.current = setTimeout(() => {
-      const nextPhase = getNextBreathingPhase(phase);
-      updateBreathingPhase(nextPhase);
-    }, phaseDuration);
-  };
-
-  const animateBreathingCircle = (phase: BreathingPhase) => {
-    const duration = BREATHING_CONFIG[phase] * 1000;
-    
-    switch (phase) {
-      case 'inhale':
-        circleScale.value = withTiming(1.2, {
-          duration,
-          easing: Easing.inOut(Easing.quad),
-        });
-        break;
-      case 'hold':
-        // Stay at maximum size during hold
-        break;
-      case 'exhale':
-        circleScale.value = withTiming(0.8, {
-          duration,
-          easing: Easing.inOut(Easing.quad),
-        });
-        break;
-    }
-  };
-
-  const startHapticFeedback = (phase: BreathingPhase) => {
-    const phaseDuration = BREATHING_CONFIG[phase];
-    const pulseInterval = 1000; // Pulse every second
-
-    for (let i = 0; i < phaseDuration; i++) {
-      setTimeout(() => {
+        // Haptic feedback for phase transitions
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      }, i * pulseInterval);
-    }
-  };
 
-  const startPhaseCountdown = (phase: BreathingPhase) => {
-    const totalSeconds = BREATHING_CONFIG[phase];
-    
-    for (let i = 1; i <= totalSeconds; i++) {
-      setTimeout(() => {
-        setSessionState(prev => ({
-          ...prev,
-          phaseCountdown: totalSeconds - i,
-        }));
-      }, i * 1000);
-    }
-  };
+        let countdown = phaseDuration;
+        phaseTimerRef.current = setInterval(() => {
+          countdown--;
+          setPhaseTime(countdown);
 
-  const getNextBreathingPhase = (currentPhase: BreathingPhase): BreathingPhase => {
-    switch (currentPhase) {
-      case 'inhale': return 'hold';
-      case 'hold': return 'exhale';
-      case 'exhale': 
-        setSessionState(prev => ({ ...prev, cycleCount: prev.cycleCount + 1 }));
-        return 'inhale';
-    }
+          if (countdown <= 0) {
+            if (phaseTimerRef.current) {
+              clearInterval(phaseTimerRef.current);
+            }
+
+            currentPhaseIndex = (currentPhaseIndex + 1) % phases.length;
+            nextPhase();
+          }
+        }, 1000);
+      };
+
+      nextPhase();
+    };
+
+    runCycle();
   };
 
   const startSessionTimer = () => {
-    timerRef.current = setInterval(() => {
-      setSessionState(prev => {
-        const newRemainingTime = prev.remainingTime - 1;
-        
-        if (newRemainingTime <= 0) {
-          finishSession();
-          return prev;
+    sessionTimerRef.current = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          // Session completed
+          handleSessionEnd();
+          return 0;
         }
-        
-        return {
-          ...prev,
-          remainingTime: newRemainingTime,
-        };
+        return prev - 1;
       });
     }, 1000);
   };
 
   const pauseSession = () => {
-    setSessionState(prev => ({ ...prev, isPlaying: false }));
-    
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
+    setIsPaused(true);
+
+    if (sessionTimerRef.current) {
+      clearInterval(sessionTimerRef.current);
     }
-    
-    if (breathingTimerRef.current) {
-      clearTimeout(breathingTimerRef.current);
+    if (phaseTimerRef.current) {
+      clearInterval(phaseTimerRef.current);
     }
-    
-    audioRef.current?.pauseAsync();
-    videoRef.current?.pauseAsync();
+
+    if (soundRef.current) {
+      soundRef.current.pauseAsync();
+    }
+
+    if (videoRef.current) {
+      videoRef.current.pauseAsync();
+    }
   };
 
   const resumeSession = () => {
-    if (!sessionState.isPlaying) {
-      setSessionState(prev => ({ ...prev, isPlaying: true }));
-      
-      startSessionTimer();
-      updateBreathingPhase(sessionState.currentPhase);
-      
-      audioRef.current?.playAsync();
-      videoRef.current?.playAsync();
+    setIsPaused(false);
+    startSessionTimer();
+    startBreathingCycle();
+
+    if (soundRef.current) {
+      soundRef.current.playAsync();
+    }
+
+    if (videoRef.current) {
+      videoRef.current.playAsync();
     }
   };
 
-  const togglePlayPause = () => {
-    if (sessionState.isPlaying) {
-      pauseSession();
-    } else {
-      resumeSession();
+  const handleSessionEnd = async () => {
+    setIsSessionActive(false);
+
+    // Clean up timers
+    if (sessionTimerRef.current) {
+      clearInterval(sessionTimerRef.current);
     }
-  };
+    if (phaseTimerRef.current) {
+      clearInterval(phaseTimerRef.current);
+    }
 
-  const finishSession = async () => {
-    await cleanup();
-    router.back();
-  };
-
-  const cleanup = async () => {
-    try {
-      // Clear timers
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
+    // Stop and clean up video
+    if (videoRef.current) {
+      try {
+        await videoRef.current.stopAsync();
+        await videoRef.current.unloadAsync();
+      } catch (error) {
+        console.log('Video cleanup error:', error);
       }
-      if (breathingTimerRef.current) {
-        clearTimeout(breathingTimerRef.current);
-      }
+    }
 
-      // Fade out audio
-      if (audioRef.current) {
+    // Fade out and stop audio
+    if (soundRef.current) {
+      try {
         const fadeSteps = 24;
-        const currentVolume = 0.55;
-        const fadeDecrement = currentVolume / fadeSteps;
-        
-        for (let i = 1; i <= fadeSteps; i++) {
-          setTimeout(async () => {
-            await audioRef.current?.setVolumeAsync(currentVolume - (i * fadeDecrement));
-            if (i === fadeSteps) {
-              await audioRef.current?.stopAsync();
-              await audioRef.current?.unloadAsync();
-            }
-          }, (i * 1200) / fadeSteps);
+        const fadeInterval = 1200 / fadeSteps;
+
+        for (let i = fadeSteps; i >= 0; i--) {
+          const volume = (i / fadeSteps) * 0.55;
+          await soundRef.current.setVolumeAsync(volume);
+          await new Promise(resolve => setTimeout(resolve, fadeInterval));
         }
+
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      } catch (error) {
+        console.log('Audio cleanup error:', error);
+      }
+    }
+
+    // Clean up keep awake
+    deactivateKeepAwake();
+
+    // Navigate to quote screen after session
+    setTimeout(() => {
+      router.push('/quote');
+    }, 1000);
+  };
+
+  const handleFinishSession = () => {
+    handleSessionEnd();
+  };
+
+  // Handle app state changes
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'background' && !isPaused) {
+        pauseSession();
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription?.remove();
+    };
+  }, [isPaused]);
+
+  // Initialize session on component mount
+  useEffect(() => {
+    initializeSession();
+    startSessionTimer();
+    startBreathingCycle();
+
+    // Cleanup on unmount
+    return () => {
+      setIsSessionActive(false);
+
+      if (sessionTimerRef.current) {
+        clearInterval(sessionTimerRef.current);
+      }
+      if (phaseTimerRef.current) {
+        clearInterval(phaseTimerRef.current);
       }
 
-      // Deactivate keep awake
+      // Clean up video
+      if (videoRef.current) {
+        videoRef.current.stopAsync().catch(() => {});
+        videoRef.current.unloadAsync().catch(() => {});
+        videoRef.current = null;
+      }
+
+      // Clean up audio
+      if (soundRef.current) {
+        soundRef.current.stopAsync().catch(() => {});
+        soundRef.current.unloadAsync().catch(() => {});
+        soundRef.current = null;
+      }
+
       deactivateKeepAwake();
-
-    } catch (error) {
-      console.error('Cleanup error:', error);
-    }
-  };
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const getPhaseText = (): string => {
-    switch (sessionState.currentPhase) {
-      case 'inhale': return 'Take a deep breath';
-      case 'hold': return 'Stop breathing';
-      case 'exhale': return 'Exhale';
-    }
-  };
-
-  const isSessionComplete = sessionState.remainingTime <= 0;
+    };
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Background Video */}
-      <Video
-        ref={videoRef}
-        source={require('@/assets/candle.mp4')}
-        style={styles.backgroundVideo}
-        resizeMode={ResizeMode.COVER}
-        shouldPlay={sessionState.isPlaying}
-        isLooping
-        onLoad={() => {}}
-        onPlaybackStatusUpdate={(status: AVPlaybackStatus) => {
-          // Handle video status if needed
-        }}
-      />
+      <View style={styles.videoContainer}>
+        <Video
+          ref={videoRef}
+          source={require('@/assets/videos/candle.mp4')}
+          style={styles.video}
+          resizeMode={ResizeMode.COVER}
+          shouldPlay={!isPaused}
+          isLooping={true}
+          isMuted={true}
+        />
 
-      {/* Dark Overlay */}
-      <View style={styles.overlay} />
+        {/* Dark overlay for better UI visibility */}
+        <View style={styles.overlay} />
+      </View>
 
       {/* Top Bar */}
       <View style={styles.topBar}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => router.push('/')}
         >
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        
-        <Text style={styles.timeRemaining}>
-          {formatTime(sessionState.remainingTime)}
+
+        <Text style={styles.timeText}>
+          {formatTime(timeRemaining)}
         </Text>
-        
+
         <TouchableOpacity
-          style={styles.playPauseButton}
-          onPress={togglePlayPause}
+          style={styles.pauseButton}
+          onPress={isPaused ? resumeSession : pauseSession}
         >
-          <Text style={styles.playPauseText}>
-            {sessionState.isPlaying ? '⏸️' : '▶️'}
+          <Text style={styles.pauseButtonText}>
+            {isPaused ? '▶' : '⏸'}
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Center Content - Breathing Guide */}
-      <View style={styles.centerContent}>
+      {/* Main Content */}
+      <View style={styles.content}>
         {/* Breathing Circle */}
-        <View style={styles.breathingContainer}>
-          {/* Glow Effect */}
-          <Animated.View style={[styles.breathingGlow, glowStyle]} />
-          
-          {/* Main Circle */}
-          <Animated.View style={[styles.breathingCircle, circleStyle]}>
-            <View style={styles.circleInner} />
-          </Animated.View>
-        </View>
+        <Animated.View style={[styles.breathingCircle, breathingStyle]}>
+          <View style={styles.circleInner}>
+            <Text style={styles.phaseText}>
+              {getPhaseText()}
+            </Text>
+            <Text style={styles.phaseCounter}>
+              {phaseTime}
+            </Text>
+          </View>
+        </Animated.View>
 
-        {/* Phase Text */}
-        <View style={styles.phaseContainer}>
-          <Text style={styles.phaseText}>{getPhaseText()}</Text>
-          <Text style={styles.countdownText}>
-            {sessionState.phaseCountdown}
-          </Text>
-          <Text style={styles.guideText}>
-            4s inhale • 7s hold • 8s exhale
-          </Text>
-        </View>
-      </View>
+        {/* Breathing Guide */}
+        <Text style={styles.breathingGuide}>
+          4s inhale • 7s hold • 8s exhale
+        </Text>
 
-      {/* Bottom Controls */}
-      <View style={styles.bottomControls}>
+        {/* Finish Button */}
         <TouchableOpacity
           style={[
             styles.finishButton,
-            isSessionComplete && styles.finishButtonActive
+            timeRemaining === 0 && styles.finishButtonHighlight
           ]}
-          onPress={finishSession}
+          onPress={handleFinishSession}
         >
           <Text style={[
             styles.finishButtonText,
-            isSessionComplete && styles.finishButtonTextActive
+            timeRemaining === 0 && styles.finishButtonTextHighlight
           ]}>
-            {isSessionComplete ? 'Finish' : 'End'}
+            {timeRemaining === 0 ? 'Finish' : 'End'}
           </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: QuickCalmColors.background,
+    backgroundColor: '#0F1115',
   },
-  backgroundVideo: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width,
-    height,
+  videoContainer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  video: {
+    ...StyleSheet.absoluteFillObject,
   },
   overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width,
-    height,
-    backgroundColor: QuickCalmColors.overlay,
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 60,
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingBottom: 20,
     zIndex: 10,
   },
   backButton: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 5,
+    width: 40,
   },
   backButtonText: {
     fontSize: 24,
-    color: QuickCalmColors.primaryText,
+    color: '#E6E6E6',
+    fontWeight: '300',
   },
-  timeRemaining: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: QuickCalmColors.primaryText,
+  timeText: {
+    fontSize: 18,
+    color: '#E6E6E6',
+    fontWeight: '500',
+    fontFamily: 'monospace',
   },
-  playPauseButton: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
+  pauseButton: {
+    padding: 5,
+    width: 40,
     alignItems: 'center',
   },
-  playPauseText: {
-    fontSize: 20,
+  pauseButtonText: {
+    fontSize: 18,
+    color: '#E6E6E6',
   },
-  centerContent: {
+  content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  breathingContainer: {
-    position: 'relative',
-    marginBottom: 60,
-  },
-  breathingGlow: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: QuickCalmColors.glow,
-    top: -20,
-    left: -20,
+    paddingHorizontal: 40,
+    zIndex: 10,
   },
   breathingCircle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: 'transparent',
-    borderWidth: 3,
-    borderColor: QuickCalmColors.accent,
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    borderWidth: 2,
+    borderColor: '#FFD58A',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: QuickCalmColors.accent,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
+    marginBottom: 40,
+    backgroundColor: 'rgba(255, 213, 138, 0.1)',
   },
   circleInner: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: QuickCalmColors.accent,
-  },
-  phaseContainer: {
     alignItems: 'center',
+    justifyContent: 'center',
   },
   phaseText: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: QuickCalmColors.primaryText,
+    fontSize: 20,
+    color: '#E6E6E6',
+    textAlign: 'center',
     marginBottom: 12,
-    textAlign: 'center',
+    fontWeight: '300',
   },
-  countdownText: {
+  phaseCounter: {
     fontSize: 48,
-    fontWeight: 'bold',
-    color: QuickCalmColors.accent,
-    marginBottom: 16,
+    fontWeight: '200',
+    color: '#FFD58A',
   },
-  guideText: {
-    fontSize: 16,
-    color: QuickCalmColors.secondaryText,
+  breathingGuide: {
+    fontSize: 14,
+    color: '#A8ADB5',
     textAlign: 'center',
-  },
-  bottomControls: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-    alignItems: 'center',
+    marginBottom: 60,
+    fontStyle: 'italic',
   },
   finishButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: QuickCalmColors.buttonInactive,
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    minWidth: 120,
-    alignItems: 'center',
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: '#A8ADB5',
   },
-  finishButtonActive: {
-    backgroundColor: QuickCalmColors.accent,
-    borderColor: QuickCalmColors.accent,
+  finishButtonHighlight: {
+    backgroundColor: '#FFD58A',
+    borderColor: '#FFD58A',
   },
   finishButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: QuickCalmColors.secondaryText,
+    fontSize: 16,
+    color: '#A8ADB5',
+    fontWeight: '500',
   },
-  finishButtonTextActive: {
-    color: QuickCalmColors.buttonText,
+  finishButtonTextHighlight: {
+    color: '#0F1115',
   },
 });
+
+export default SessionScreen;

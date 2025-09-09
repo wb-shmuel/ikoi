@@ -27,3 +27,10 @@ export interface MediaState {
   videoStatus: any;
   audioStatus: any;
 }
+
+export type CountdownState = 3 | 2 | 1 | 'begin' | 'complete';
+
+export interface QuoteScreenState {
+  currentQuote: string;
+  showContinueHint: boolean;
+}
