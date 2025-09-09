@@ -8,7 +8,11 @@
     "android": "expo start --android --clear",
     "ios": "expo start --ios --clear",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "expo:login": "npx eas login",
+    "expo:config:update": "npx eas update:configure",
+    "expo:publish:prv": "npx eas update --channel preview",
+    "ios:build": "npx eas build --profile development --platform ios --clear-cache"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -16,11 +20,13 @@
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
     "expo": "~53.0.22",
+    "expo-av": "~15.1.7",
     "expo-blur": "~14.1.5",
     "expo-constants": "~17.1.7",
     "expo-font": "~13.3.2",
     "expo-haptics": "~14.1.4",
     "expo-image": "~2.4.0",
+    "expo-keep-awake": "~14.1.4",
     "expo-linking": "~7.1.7",
     "expo-router": "~5.1.5",
     "expo-splash-screen": "~0.30.10",
@@ -37,15 +43,16 @@
     "react-native-screens": "~4.11.1",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "expo-av": "~15.1.7",
-    "expo-keep-awake": "~14.1.4"
+    "expo-updates": "~0.28.17"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
-    "typescript": "~5.8.3",
     "eslint": "^9.25.0",
-    "eslint-config-expo": "~9.2.0"
+    "eslint-config-expo": "~9.2.0",
+    "replace-color": "^2.3.0",
+    "sharp": "^0.34.3",
+    "typescript": "~5.8.3"
   },
   "private": true
 }

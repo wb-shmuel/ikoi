@@ -35,6 +35,46 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
+## Deploy to iOS App Store
+
+To deploy your app to the iOS App Store:
+
+1. **Setup Apple Developer Account**
+   - Sign up for an [Apple Developer Account](https://developer.apple.com/) ($99/year)
+   - Create an App ID in the Apple Developer Console
+
+2. **Configure your app**
+   ```bash
+   # Install EAS CLI
+   npm install -g @expo/cli@latest
+
+   # Configure EAS
+   eas build:configure
+   ```
+
+3. **Build for iOS**
+   ```bash
+   # Create a production build
+   eas build --platform ios
+   ```
+
+4. **Submit to App Store**
+   ```bash
+   # Submit to App Store Connect
+   eas submit --platform ios
+   ```
+
+5. **Alternative: Local build**
+   ```bash
+   # Generate iOS project locally
+   npx expo prebuild
+
+   # Open in Xcode
+   open ios/YourAppName.xcworkspace
+   ```
+
+For detailed instructions, see the [Expo deployment guide](https://docs.expo.dev/submit/ios/).
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
