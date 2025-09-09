@@ -44,9 +44,16 @@ const SessionScreen: React.FC = () => {
   const breathingScale = useSharedValue(1);
   const breathingOpacity = useSharedValue(0.3);
 
+  // Countdown animation
+  const countdownOpacity = useSharedValue(1);
+
   const breathingStyle = useAnimatedStyle(() => ({
     transform: [{ scale: breathingScale.value }],
     opacity: breathingOpacity.value,
+  }));
+
+  const countdownStyle = useAnimatedStyle(() => ({
+    opacity: countdownOpacity.value,
   }));
 
   // Format time as MM:SS
@@ -170,11 +177,22 @@ const SessionScreen: React.FC = () => {
       setCountdownSeconds(prev => {
         if (prev <= 1) {
           clearInterval(timer);
-          // End countdown, start session
+          
+          // Show "Begin" for longer (2 seconds)
           setTimeout(() => {
-            setIsInCountdown(false);
-            startSession();
-          }, 100);
+            // Start fade out animation
+            countdownOpacity.value = withTiming(0, {
+              duration: 800,
+              easing: Easing.out(Easing.ease),
+            });
+            
+            // End countdown after fade completes
+            setTimeout(() => {
+              setIsInCountdown(false);
+              startSession();
+            }, 800);
+          }, 2000);
+          
           return 0;
         }
 
@@ -429,7 +447,7 @@ const SessionScreen: React.FC = () => {
       <View style={styles.content}>
         {isInCountdown ? (
           /* Countdown Phase */
-          <View style={styles.countdownContent}>
+          <Animated.View style={[styles.countdownContent, countdownStyle]}>
             <Text style={styles.titleText}>Get Ready</Text>
             <Text style={styles.subtitleText}>
               Your {duration}-minute session starts in
@@ -451,7 +469,7 @@ const SessionScreen: React.FC = () => {
             <Text style={styles.instructionText}>
               Take a deep breath and prepare to relax
             </Text>
-          </View>
+          </Animated.View>
         ) : (
           /* Session Phase */
           <>
