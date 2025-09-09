@@ -489,21 +489,15 @@ const SessionScreen: React.FC = () => {
         )}
       </View>
 
-      {/* Bottom Finish Button - Only show during session, not countdown */}
-      {!isInCountdown && (
+      {/* Bottom End Button - Only show during session when time remaining, not countdown or when timer hits 0 */}
+      {!isInCountdown && timeRemaining > 0 && (
         <View style={styles.bottomButtonContainer}>
           <TouchableOpacity
-            style={[
-              styles.finishButton,
-              timeRemaining === 0 && styles.finishButtonHighlight
-            ]}
+            style={styles.finishButton}
             onPress={handleFinishSession}
           >
-            <Text style={[
-              styles.finishButtonText,
-              timeRemaining === 0 && styles.finishButtonTextHighlight
-            ]}>
-              {timeRemaining === 0 ? 'Finish' : 'End'}
+            <Text style={styles.finishButtonText}>
+              End
             </Text>
           </TouchableOpacity>
         </View>
