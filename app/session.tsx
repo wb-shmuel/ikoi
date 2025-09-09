@@ -31,6 +31,10 @@ const SessionScreen: React.FC = () => {
   const [phaseTime, setPhaseTime] = useState(4); // Start with 4 seconds for inhale
   const [isSessionActive, setIsSessionActive] = useState(true);
 
+  // Countdown state
+  const [isInCountdown, setIsInCountdown] = useState(true);
+  const [countdownSeconds, setCountdownSeconds] = useState(3);
+
   const videoRef = useRef<Video>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
   const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -111,14 +115,14 @@ const SessionScreen: React.FC = () => {
     }
   };
 
-  const initializeSession = async () => {
+  const initializeMedia = async () => {
     try {
-      console.log('Starting session initialization...');
+      console.log('Starting media initialization...');
 
       // Keep screen awake
       await activateKeepAwakeAsync();
 
-      // Configure audio session for playbook
+      // Configure audio session
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         staysActiveInBackground: false,
@@ -127,7 +131,7 @@ const SessionScreen: React.FC = () => {
         playThroughEarpieceAndroid: false,
       });
 
-      // Load audio - always needed since React Native doesn't maintain audio across screens
+      // Load and start audio during countdown
       console.log('Loading and starting audio...');
       const { sound } = await Audio.Sound.createAsync(
         require('@/assets/audio/music.mp3'),
@@ -140,7 +144,7 @@ const SessionScreen: React.FC = () => {
 
       soundRef.current = sound;
 
-      // Start audio with fade-in
+      // Start audio with fade-in during countdown
       await sound.setVolumeAsync(0);
       await sound.playAsync();
 
@@ -155,10 +159,35 @@ const SessionScreen: React.FC = () => {
         await new Promise(resolve => setTimeout(resolve, fadeInterval));
       }
 
-      console.log('Session initialization completed');
+      console.log('Media initialization completed');
     } catch (error) {
-      console.error('Failed to initialize session:', error);
+      console.error('Failed to initialize media:', error);
     }
+  };
+
+  const startCountdown = () => {
+    const timer = setInterval(() => {
+      setCountdownSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          // End countdown, start session
+          setTimeout(() => {
+            setIsInCountdown(false);
+            startSession();
+          }, 100);
+          return 0;
+        }
+
+        // Trigger haptic feedback on each count
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const startSession = () => {
+    startSessionTimer();
+    startBreathingCycle();
   };
 
   const startBreathingCycle = () => {
@@ -318,11 +347,10 @@ const SessionScreen: React.FC = () => {
     };
   }, [isPaused]);
 
-  // Initialize session on component mount
+  // Initialize media and start countdown on component mount
   useEffect(() => {
-    initializeSession();
-    startSessionTimer();
-    startBreathingCycle();
+    initializeMedia();
+    startCountdown();
 
     // Cleanup on unmount
     return () => {
@@ -351,6 +379,7 @@ const SessionScreen: React.FC = () => {
 
       deactivateKeepAwake();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -362,7 +391,7 @@ const SessionScreen: React.FC = () => {
           source={require('@/assets/videos/candle.mp4')}
           style={styles.video}
           resizeMode={ResizeMode.COVER}
-          shouldPlay={!isPaused}
+          shouldPlay={true}
           isLooping={true}
           isMuted={true}
         />
@@ -371,64 +400,96 @@ const SessionScreen: React.FC = () => {
         <View style={styles.overlay} />
       </View>
 
-      {/* Top Bar */}
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.push('/')}
-        >
-          <Text style={styles.backButtonText}>←</Text>
-        </TouchableOpacity>
+      {/* Top Bar - Hidden during countdown */}
+      {!isInCountdown && (
+        <View style={styles.topBar}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.push('/')}
+          >
+            <Text style={styles.backButtonText}>←</Text>
+          </TouchableOpacity>
 
-        <Text style={styles.timeText}>
-          {formatTime(timeRemaining)}
-        </Text>
-
-        <TouchableOpacity
-          style={styles.pauseButton}
-          onPress={isPaused ? resumeSession : pauseSession}
-        >
-          <Text style={styles.pauseButtonText}>
-            {isPaused ? '▶' : '⏸'}
+          <Text style={styles.timeText}>
+            {formatTime(timeRemaining)}
           </Text>
-        </TouchableOpacity>
-      </View>
+
+          <TouchableOpacity
+            style={styles.pauseButton}
+            onPress={isPaused ? resumeSession : pauseSession}
+          >
+            <Text style={styles.pauseButtonText}>
+              {isPaused ? '▶' : '⏸'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Main Content */}
       <View style={styles.content}>
-        {/* Breathing Circle */}
-        <Animated.View style={[styles.breathingCircle, breathingStyle]}>
-          <View style={styles.circleInner}>
-            <Text style={styles.phaseText}>
-              {getPhaseText()}
+        {isInCountdown ? (
+          /* Countdown Phase */
+          <View style={styles.countdownContent}>
+            <Text style={styles.titleText}>Get Ready</Text>
+            <Text style={styles.subtitleText}>
+              Your {duration}-minute session starts in
             </Text>
-            <Text style={styles.phaseCounter}>
-              {phaseTime}
+
+            <View style={styles.timerDisplay}>
+              <Text style={styles.timerText}>
+                {formatTime(totalSeconds)}
+              </Text>
+            </View>
+
+            {/* Countdown Circle */}
+            <View style={styles.countdownCircle}>
+              <Text style={styles.countdownNumber}>
+                {countdownSeconds === 0 ? 'Begin' : countdownSeconds}
+              </Text>
+            </View>
+
+            <Text style={styles.instructionText}>
+              Take a deep breath and prepare to relax
             </Text>
           </View>
-        </Animated.View>
+        ) : (
+          /* Session Phase */
+          <>
+            {/* Breathing Circle - Only visible after countdown */}
+            <Animated.View style={[styles.breathingCircle, breathingStyle]}>
+              <View style={styles.circleInner}>
+                <Text style={styles.phaseText}>
+                  {getPhaseText()}
+                </Text>
+                <Text style={styles.phaseCounter}>
+                  {phaseTime}
+                </Text>
+              </View>
+            </Animated.View>
 
-        {/* Breathing Guide */}
-        <Text style={styles.breathingGuide}>
-          4s inhale • 7s hold • 8s exhale
-        </Text>
-
-        {/* Finish Button */}
-        <TouchableOpacity
-          style={[
-            styles.finishButton,
-            timeRemaining === 0 && styles.finishButtonHighlight
-          ]}
-          onPress={handleFinishSession}
-        >
-          <Text style={[
-            styles.finishButtonText,
-            timeRemaining === 0 && styles.finishButtonTextHighlight
-          ]}>
-            {timeRemaining === 0 ? 'Finish' : 'End'}
-          </Text>
-        </TouchableOpacity>
+          </>
+        )}
       </View>
+
+      {/* Bottom Finish Button - Only show during session, not countdown */}
+      {!isInCountdown && (
+        <View style={styles.bottomButtonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.finishButton,
+              timeRemaining === 0 && styles.finishButtonHighlight
+            ]}
+            onPress={handleFinishSession}
+          >
+            <Text style={[
+              styles.finishButtonText,
+              timeRemaining === 0 && styles.finishButtonTextHighlight
+            ]}>
+              {timeRemaining === 0 ? 'Finish' : 'End'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -540,6 +601,65 @@ const styles = StyleSheet.create({
   },
   finishButtonTextHighlight: {
     color: '#0F1115',
+  },
+  bottomButtonContainer: {
+    position: 'absolute',
+    bottom: 60,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    zIndex: 20,
+  },
+  // Countdown styles
+  countdownContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  titleText: {
+    fontSize: 32,
+    fontWeight: '300',
+    color: '#E6E6E6',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitleText: {
+    fontSize: 16,
+    color: '#A8ADB5',
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+  timerDisplay: {
+    marginBottom: 60,
+  },
+  timerText: {
+    fontSize: 18,
+    color: '#E6E6E6',
+    fontWeight: '500',
+    fontFamily: 'monospace',
+  },
+  countdownCircle: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    borderWidth: 2,
+    borderColor: '#FFD58A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 40,
+    backgroundColor: 'rgba(255, 213, 138, 0.1)',
+  },
+  countdownNumber: {
+    fontSize: 72,
+    fontWeight: '200',
+    color: '#FFD58A',
+  },
+  instructionText: {
+    fontSize: 18,
+    color: '#E6E6E6',
+    textAlign: 'center',
+    marginTop: 40,
   },
 });
 

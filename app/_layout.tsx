@@ -16,7 +16,6 @@ export default function RootLayout() {
     <>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
-        <Stack.Screen name="countdown" />
         <Stack.Screen name="session" />
         <Stack.Screen name="quote" />
       </Stack>
