@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
+import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import type { SessionDuration } from '@/types/QuickCalm';
 
 export default function DurationPicker() {
@@ -61,40 +62,40 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 40,
+    paddingHorizontal: ResponsiveScale.spacing(24),
+    paddingTop: ResponsiveScale.spacing(60),
+    paddingBottom: ResponsiveScale.spacing(40),
   },
   header: {
     alignItems: 'center',
-    marginBottom: 60,
+    marginBottom: ResponsiveScale.spacing(60),
   },
   title: {
-    fontSize: 36,
+    fontSize: ResponsiveScale.fontSize(36),
     fontWeight: 'bold',
     color: QuickCalmColors.primaryText,
-    marginBottom: 16,
+    marginBottom: ResponsiveScale.spacing(16),
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: ResponsiveScale.fontSize(18),
     color: QuickCalmColors.secondaryText,
     textAlign: 'center',
-    lineHeight: 26,
-    maxWidth: 280,
+    lineHeight: ResponsiveScale.fontSize(26),
+    maxWidth: ResponsiveScale.getMaxTextWidth(),
   },
   buttonsContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 24,
+    gap: ResponsiveScale.spacing(24),
   },
   durationButton: {
     backgroundColor: QuickCalmColors.accent,
-    borderRadius: 20,
-    paddingVertical: 24,
-    paddingHorizontal: 48,
-    minWidth: 140,
+    borderRadius: ResponsiveScale.scale(20),
+    paddingVertical: ResponsiveScale.spacing(24),
+    paddingHorizontal: ResponsiveScale.spacing(48),
+    minWidth: ResponsiveScale.getButtonWidth(),
     alignItems: 'center',
     shadowColor: QuickCalmColors.accent,
     shadowOffset: {
@@ -106,23 +107,23 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   durationText: {
-    fontSize: 32,
+    fontSize: ResponsiveScale.fontSize(32),
     fontWeight: 'bold',
     color: QuickCalmColors.buttonText,
   },
   minutesText: {
-    fontSize: 16,
+    fontSize: ResponsiveScale.fontSize(16),
     color: QuickCalmColors.buttonText,
-    marginTop: 4,
+    marginTop: ResponsiveScale.spacing(4),
   },
   footer: {
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: ResponsiveScale.spacing(40),
   },
   footerText: {
-    fontSize: 16,
+    fontSize: ResponsiveScale.fontSize(16),
     color: QuickCalmColors.secondaryText,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: ResponsiveScale.fontSize(22),
   },
 });

@@ -16,6 +16,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
+import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import { Quote } from '@/constants/Quote';
 import type { QuoteScreenState } from '@/types/QuickCalm';
 
@@ -110,8 +111,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
-    paddingVertical: 60,
+    paddingHorizontal: ResponsiveScale.spacing(32),
+    paddingVertical: ResponsiveScale.spacing(60),
   },
   quoteContainer: {
     flex: 1,
@@ -120,21 +121,21 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   quoteText: {
-    fontSize: 22,
-    lineHeight: 32,
+    fontSize: ResponsiveScale.fontSize(22),
+    lineHeight: ResponsiveScale.fontSize(32),
     color: QuickCalmColors.primaryText,
     textAlign: 'center',
     fontWeight: '400',
     letterSpacing: 0.5,
-    maxWidth: 350,
+    maxWidth: ResponsiveScale.getMaxTextWidth(),
   },
   hintContainer: {
     position: 'absolute',
-    bottom: 80,
+    bottom: ResponsiveScale.spacing(80),
     alignSelf: 'center',
   },
   hintText: {
-    fontSize: 16,
+    fontSize: ResponsiveScale.fontSize(16),
     color: QuickCalmColors.secondaryText,
     textAlign: 'center',
     fontStyle: 'italic',

@@ -1,3 +1,5 @@
+import { ResponsiveScale } from '@/constants/ResponsiveScale';
+import { Ionicons } from '@expo/vector-icons';
 import { Audio, ResizeMode, Video } from 'expo-av';
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
@@ -177,7 +179,7 @@ const SessionScreen: React.FC = () => {
       setCountdownSeconds(prev => {
         if (prev <= 1) {
           clearInterval(timer);
-          
+
           // Show "Begin" for longer (2 seconds)
           setTimeout(() => {
             // Start fade out animation
@@ -185,14 +187,14 @@ const SessionScreen: React.FC = () => {
               duration: 800,
               easing: Easing.out(Easing.ease),
             });
-            
+
             // End countdown after fade completes
             setTimeout(() => {
               setIsInCountdown(false);
               startSession();
             }, 800);
           }, 2000);
-          
+
           return 0;
         }
 
@@ -421,13 +423,6 @@ const SessionScreen: React.FC = () => {
       {/* Top Bar - Hidden during countdown */}
       {!isInCountdown && (
         <View style={styles.topBar}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.push('/')}
-          >
-            <Text style={styles.backButtonText}>←</Text>
-          </TouchableOpacity>
-
           <Text style={styles.timeText}>
             {formatTime(timeRemaining)}
           </Text>
@@ -436,9 +431,11 @@ const SessionScreen: React.FC = () => {
             style={styles.pauseButton}
             onPress={isPaused ? resumeSession : pauseSession}
           >
-            <Text style={styles.pauseButtonText}>
-              {isPaused ? '▶' : '⏸'}
-            </Text>
+            <Ionicons
+              name={isPaused ? 'play' : 'pause'}
+              size={ResponsiveScale.fontSize(24)}
+              color="#E6E6E6"
+            />
           </TouchableOpacity>
         </View>
       )}
@@ -523,53 +520,55 @@ const styles = StyleSheet.create({
   },
   topBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingTop: ResponsiveScale.spacing(60),
+    paddingHorizontal: ResponsiveScale.spacing(20),
+    paddingBottom: ResponsiveScale.spacing(20),
     zIndex: 10,
+    position: 'relative',
   },
   backButton: {
     padding: 5,
     width: 40,
   },
   backButtonText: {
-    fontSize: 24,
+    fontSize: ResponsiveScale.fontSize(24),
     color: '#E6E6E6',
     fontWeight: '300',
   },
   timeText: {
-    fontSize: 18,
+    fontSize: ResponsiveScale.fontSize(18),
     color: '#E6E6E6',
     fontWeight: '500',
     fontFamily: 'monospace',
   },
   pauseButton: {
-    padding: 5,
-    width: 40,
+    position: 'absolute',
+    right: ResponsiveScale.spacing(15),
+    padding: ResponsiveScale.spacing(8),
+    width: ResponsiveScale.scale(44),
+    height: ResponsiveScale.scale(44),
     alignItems: 'center',
-  },
-  pauseButtonText: {
-    fontSize: 18,
-    color: '#E6E6E6',
+    justifyContent: 'center',
+    borderRadius: ResponsiveScale.scale(22),
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: ResponsiveScale.spacing(40),
     zIndex: 10,
   },
   breathingCircle: {
-    width: 280,
-    height: 280,
-    borderRadius: 140,
+    width: ResponsiveScale.getBreathingCircleSize(),
+    height: ResponsiveScale.getBreathingCircleSize(),
+    borderRadius: ResponsiveScale.getBreathingCircleSize() / 2,
     borderWidth: 2,
     borderColor: '#FFD58A',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: ResponsiveScale.spacing(40),
     backgroundColor: 'rgba(255, 213, 138, 0.1)',
   },
   circleInner: {
@@ -577,14 +576,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   phaseText: {
-    fontSize: 20,
+    fontSize: ResponsiveScale.fontSize(20),
     color: '#E6E6E6',
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: ResponsiveScale.spacing(12),
     fontWeight: '300',
   },
   phaseCounter: {
-    fontSize: 48,
+    fontSize: ResponsiveScale.fontSize(48),
     fontWeight: '200',
     color: '#FFD58A',
   },
@@ -592,13 +591,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#A8ADB5',
     textAlign: 'center',
-    marginBottom: 60,
+    marginBottom: ResponsiveScale.spacing(60),
     fontStyle: 'italic',
   },
   finishButton: {
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    borderRadius: 25,
+    paddingHorizontal: ResponsiveScale.spacing(30),
+    paddingVertical: ResponsiveScale.spacing(12),
+    borderRadius: ResponsiveScale.scale(25),
     borderWidth: 1,
     borderColor: '#A8ADB5',
   },
@@ -607,7 +606,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFD58A',
   },
   finishButtonText: {
-    fontSize: 16,
+    fontSize: ResponsiveScale.fontSize(16),
     color: '#A8ADB5',
     fontWeight: '500',
   },
@@ -616,11 +615,11 @@ const styles = StyleSheet.create({
   },
   bottomButtonContainer: {
     position: 'absolute',
-    bottom: 60,
+    bottom: ResponsiveScale.spacing(60),
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: ResponsiveScale.spacing(40),
     zIndex: 20,
   },
   // Countdown styles
@@ -630,48 +629,48 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   titleText: {
-    fontSize: 32,
+    fontSize: ResponsiveScale.fontSize(32),
     fontWeight: '300',
     color: '#E6E6E6',
-    marginBottom: 8,
+    marginBottom: ResponsiveScale.spacing(8),
     textAlign: 'center',
   },
   subtitleText: {
-    fontSize: 16,
+    fontSize: ResponsiveScale.fontSize(16),
     color: '#A8ADB5',
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: ResponsiveScale.spacing(40),
   },
   timerDisplay: {
-    marginBottom: 60,
+    marginBottom: ResponsiveScale.spacing(60),
   },
   timerText: {
-    fontSize: 18,
+    fontSize: ResponsiveScale.fontSize(18),
     color: '#E6E6E6',
     fontWeight: '500',
     fontFamily: 'monospace',
   },
   countdownCircle: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: ResponsiveScale.scale(200),
+    height: ResponsiveScale.scale(200),
+    borderRadius: ResponsiveScale.scale(100),
     borderWidth: 2,
     borderColor: '#FFD58A',
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 40,
+    marginVertical: ResponsiveScale.spacing(40),
     backgroundColor: 'rgba(255, 213, 138, 0.1)',
   },
   countdownNumber: {
-    fontSize: 72,
+    fontSize: ResponsiveScale.fontSize(72),
     fontWeight: '200',
     color: '#FFD58A',
   },
   instructionText: {
-    fontSize: 18,
+    fontSize: ResponsiveScale.fontSize(18),
     color: '#E6E6E6',
     textAlign: 'center',
-    marginTop: 40,
+    marginTop: ResponsiveScale.spacing(40),
   },
 });
 
