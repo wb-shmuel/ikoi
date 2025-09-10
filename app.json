@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "ikoi",
+    "name": "Quick Calm",
     "slug": "ikoi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon-1024.png",
-    "scheme": "ikoi",
+    "scheme": "quick-calm",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -14,10 +14,15 @@
       "backgroundColor": "#0F1115"
     },
     "ios": {
+      "bundleIdentifier": "com.ikoi.app",
       "icon": "./assets/images/icon-1024.png",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.ikoi.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-foreground.png",
         "backgroundColor": "#0F1115",
@@ -56,6 +61,7 @@
     },
     "updates": {
       "url": "https://u.expo.dev/ee18e3a3-9849-4d26-b518-8cfb620a1938"
-    }
+    },
+    "owner": "akira.shmuel"
   }
 }

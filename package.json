@@ -1,5 +1,5 @@
 {
-  "name": "ikoi",
+  "name": "quick-calm",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -12,7 +12,8 @@
     "expo:login": "npx eas login",
     "expo:config:update": "npx eas update:configure",
     "expo:publish:prv": "npx eas update --channel preview",
-    "ios:build": "npx eas build --profile development --platform ios --clear-cache"
+    "ios:build": "npx eas build --profile development --platform ios --clear-cache",
+    "android:build": "npx eas build --profile development --platform android --clear-cache"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -43,7 +44,8 @@
     "react-native-screens": "~4.11.1",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "expo-updates": "~0.28.17"
+    "expo-updates": "~0.28.17",
+    "expo-dev-client": "~5.2.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
