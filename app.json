@@ -22,7 +22,7 @@
       }
     },
     "android": {
-      "package": "com.ikoi.app",
+      "package": "com.arise.quickcalm.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-foreground.png",
         "backgroundColor": "#0F1115",
