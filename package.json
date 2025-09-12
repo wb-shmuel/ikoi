@@ -12,8 +12,8 @@
     "expo:login": "npx eas login",
     "expo:config:update": "npx eas update:configure",
     "expo:publish:prv": "npx eas update --channel preview",
-    "ios:build": "npx eas build --profile development --platform ios --clear-cache",
-    "android:build": "npx eas build --profile development --platform android --clear-cache"
+    "ios:build": "npx eas build --profile production --platform ios --clear-cache",
+    "android:build": "npx eas build --profile production --platform android --clear-cache"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
