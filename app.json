@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Quick Calm",
-    "slug": "ikoi",
+    "name": "Be Bored",
+    "slug": "bebored",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon-1024.png",
-    "scheme": "quick-calm",
+    "scheme": "be-bored",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -14,7 +14,7 @@
       "backgroundColor": "#0F1115"
     },
     "ios": {
-      "bundleIdentifier": "com.ikoi.app",
+      "bundleIdentifier": "com.arise.bebored",
       "icon": "./assets/images/icon-1024.png",
       "supportsTablet": true,
       "infoPlist": {
@@ -22,7 +22,7 @@
       }
     },
     "android": {
-      "package": "com.arise.quickcalm.app",
+      "package": "com.arise.bebored",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-foreground.png",
         "backgroundColor": "#0F1115",
@@ -53,14 +53,14 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "ee18e3a3-9849-4d26-b518-8cfb620a1938"
+        "projectId": "feb5781e-3c77-409f-9840-a406634283ff"
       }
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/ee18e3a3-9849-4d26-b518-8cfb620a1938"
+      "url": "https://u.expo.dev/feb5781e-3c77-409f-9840-a406634283ff"
     },
     "owner": "akira.shmuel"
   }

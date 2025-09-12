@@ -1,5 +1,5 @@
 /**
- * TypeScript types for Quick Calm app
+ * TypeScript types for Be Bored app
  */
 
 export type SessionDuration = 5 | 10 | 15;
@@ -17,7 +17,7 @@ export interface SessionState {
 
 export interface BreathingConfig {
   inhale: number;    // 4 seconds
-  hold: number;      // 7 seconds  
+  hold: number;      // 7 seconds
   exhale: number;    // 8 seconds
 }
 

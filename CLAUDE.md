@@ -1,4 +1,4 @@
-# Quick Calm App Specification
+# Be Bored App Specification
 
 ## 🎯 Concept
 - A simple relaxation app designed for **“open quickly, calm quickly.”**
@@ -47,7 +47,7 @@
 
 ## 📱 Screen Flow
 ### 1. Duration Picker
-- Title: **Quick Calm**
+- Title: **Be Bored**
 - Subtitle: “Choose a short session to calm yourself now”
 - Buttons: 5 min / 10 min / 15 min
 - Footer text: explanation of 4-7-8 breathing

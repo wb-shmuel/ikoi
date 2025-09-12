@@ -1,4 +1,4 @@
-# Quick Calm App - Implementation Complete
+# Be Bored App - Implementation Complete
 
 ## ✅ Successfully Implemented
 
@@ -8,7 +8,7 @@
   - Amber accent buttons with shadow effects
   - Footer text explaining 4-7-8 breathing method
 
-- **Session Screen** (`/app/session.tsx`) 
+- **Session Screen** (`/app/session.tsx`)
   - Full-screen candle video background with overlay
   - Background music with fade-in/out (0.55 volume)
   - 4-7-8 breathing animation with expanding/contracting circle
@@ -27,7 +27,7 @@
 
 ### Key Files Created
 - `/constants/QuickCalmColors.ts` - Custom color theme
-- `/types/QuickCalm.ts` - TypeScript type definitions  
+- `/types/QuickCalm.ts` - TypeScript type definitions
 - `/app/_layout.tsx` - Root navigation layout
 - `/app/index.tsx` - Duration picker screen
 - `/app/session.tsx` - Main session screen with all features

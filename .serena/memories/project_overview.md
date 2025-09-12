@@ -1,8 +1,8 @@
-# Ikoi - Quick Calm App Project
+# Ikoi - Be Bored App Project
 
 ## Purpose
 A simple relaxation app designed for "open quickly, calm quickly" using React Native with Expo. The app focuses on short meditation sessions (5/10/15 minutes) featuring:
-- Candlelight video background with healing music  
+- Candlelight video background with healing music
 - 4-7-8 breathing guidance with animation and haptics
 - Dark, calming UI theme
 

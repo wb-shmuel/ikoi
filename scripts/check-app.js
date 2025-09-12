@@ -3,13 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 
-console.log('🔍 Quick Calm App Structure Check');
+console.log('🔍 Be Bored App Structure Check');
 console.log('==================================');
 
 // Check required files
 const requiredFiles = [
   'app/_layout.tsx',
-  'app/index.tsx', 
+  'app/index.tsx',
   'app/session.tsx',
   'constants/QuickCalmColors.ts',
   'types/QuickCalm.ts',
@@ -31,7 +31,7 @@ console.log('====================');
 const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 const requiredDeps = [
   'expo-av',
-  'expo-keep-awake', 
+  'expo-keep-awake',
   'expo-haptics',
   'react-native-reanimated'
 ];

@@ -14,7 +14,7 @@
 - [ ] **Accessibility**: Basic accessibility support (screen reader friendly)
 - [ ] **Code Organization**: Files properly organized by feature/function
 
-## Quick Calm App Specific
+## Be Bored App Specific
 - [ ] **Media Playback**: Video and audio work correctly
 - [ ] **Animations**: Breathing circle animations smooth and accurate
 - [ ] **Haptics**: Haptic feedback working on devices

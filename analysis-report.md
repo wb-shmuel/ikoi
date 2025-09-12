@@ -1,18 +1,18 @@
-# Code Analysis Report: Quick Calm App
+# Code Analysis Report: Be Bored App
 
 ## 📊 Project Overview
 
-**Project**: ikoi (Quick Calm App)  
-**Type**: Expo React Native Application  
-**Language**: TypeScript  
-**Target Platforms**: iOS, Android, Web  
-**Codebase Size**: 22 files, ~741 lines of TypeScript code  
+**Project**: ikoi (Be Bored App)
+**Type**: Expo React Native Application
+**Language**: TypeScript
+**Target Platforms**: iOS, Android, Web
+**Codebase Size**: 22 files, ~741 lines of TypeScript code
 
 ---
 
 ## 🎯 Executive Summary
 
-The project is currently in a **starter template state** with the default Expo setup. While the foundation is solid, the actual Quick Calm app features described in CLAUDE.md have not been implemented yet. The codebase requires significant development to meet the specification requirements.
+The project is currently in a **starter template state** with the default Expo setup. While the foundation is solid, the actual Be Bored app features described in CLAUDE.md have not been implemented yet. The codebase requires significant development to meet the specification requirements.
 
 ### Current State vs. Specification Gap
 
@@ -86,7 +86,7 @@ hooks/               # Custom React hooks
 constants/           # Colors and configuration
 ```
 
-#### Recommended Architecture for Quick Calm
+#### Recommended Architecture for Be Bored
 ```
 app/
 ├── index.tsx        # Duration picker screen
@@ -175,6 +175,6 @@ npm run lint       # Check code quality
 
 ## 🎯 Conclusion
 
-The project has a **solid technical foundation** but requires **complete feature implementation** to match the Quick Calm app specification. The Expo + React Native setup is appropriate for the requirements, and the existing code quality standards are good. The primary focus should be on implementing the core meditation features while maintaining the current code quality standards.
+The project has a **solid technical foundation** but requires **complete feature implementation** to match the Be Bored app specification. The Expo + React Native setup is appropriate for the requirements, and the existing code quality standards are good. The primary focus should be on implementing the core meditation features while maintaining the current code quality standards.
 
 **Recommended Action**: Begin Phase 1 implementation immediately, focusing on setting up the proper theme and media assets before building the core functionality.
