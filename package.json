@@ -12,6 +12,8 @@
     "expo:login": "npx eas login",
     "expo:config:update": "npx eas update:configure",
     "expo:publish:prv": "npx eas update --channel preview",
+    "ios:submit": "eas submit -p ios --path ./BeBored.ipa --profile production",
+    "android:submit": "eas submit -p android --path ./BeBored.aab --profile production",
     "ios:build": "npx eas build --profile production --platform ios --clear-cache",
     "android:build": "npx eas build --profile production --platform android --clear-cache"
   },

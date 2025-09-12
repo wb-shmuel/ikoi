@@ -1,90 +1,87 @@
-# Welcome to your Expo app 👋
+# Be Bored 🕯️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Be Bored** is a minimal, mindful breathing app that embraces the power of boredom.
+In just a few minutes, you can calm your mind, slow down, and reset.
 
-## Get started
+📱 Available on [App Store](#) (coming soon)
+
+---
+
+## ✨ Features
+- Guided breathing sessions (5, 10, or 15 minutes)
+- Simple, distraction-free design
+- Visual breathing guide with a calming flame
+- Open source for transparency — all code is published here
+
+---
+
+## 💡 Why "Be Bored"?
+In today’s world, boredom is often seen as negative.
+But boredom gives us space to breathe, reflect, and find calm.
+**Be Bored** turns boredom into a mindful tool.
+
+---
+
+## 🚀 Getting Started (for developers)
 
 1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Start the app
+```bash
+npx expo start
+```
 
-## Deploy to iOS App Store
+You can run the app in:
+	•	Development build
+	•	Android emulator
+	•	iOS simulator
+	•	Expo Go
 
-To deploy your app to the iOS App Store:
+⸻
 
-1. **Setup Apple Developer Account**
-   - Sign up for an [Apple Developer Account](https://developer.apple.com/) ($99/year)
-   - Create an App ID in the Apple Developer Console
+📦 Deployment
 
-2. **Configure your app**
-   ```bash
-   # Install EAS CLI
-   npm install -g @expo/cli@latest
+To build and submit to the App Store:
+```bash
+# Configure EAS
+eas build:configure
 
-   # Configure EAS
-   eas build:configure
-   ```
+# Build for iOS
+eas build --platform ios
 
-3. **Build for iOS**
-   ```bash
-   # Create a production build
-   eas build --platform ios
-   ```
+# Submit to App Store Connect
+eas submit --platform ios
+```
 
-4. **Submit to App Store**
-   ```bash
-   # Submit to App Store Connect
-   eas submit --platform ios
-   ```
+⸻
 
-5. **Alternative: Local build**
-   ```bash
-   # Generate iOS project locally
-   npx expo prebuild
+🔍 Transparency Notice
 
-   # Open in Xcode
-   open ios/YourAppName.xcworkspace
-   ```
+This repository is made public for transparency purposes only.
+	•	You are welcome to explore and learn from the code.
+	•	You may not redistribute, publish, or release derivative apps using this code without explicit permission from the author.
+	•	All rights to the app, its assets, and its distribution on the App Store remain reserved.
 
-For detailed instructions, see the [Expo deployment guide](https://docs.expo.dev/submit/ios/).
+If you are interested in collaboration, please open an issue or contact the maintainer.
 
-## Learn more
+⸻
 
-To learn more about developing your project with Expo, look at the following resources:
+🤝 Contributing
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+This project is not intended as a typical open source project.
+However, suggestions, feedback, and improvements are welcome through pull requests or issues.
 
-## Join the community
+⸻
 
-Join our community of developers creating universal apps.
+📜 License
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This project does not use a permissive open source license.
+Instead, the code is shared under a “Source-Available” model:
+	•	✅ You can view and learn from the code
+	•	❌ You cannot commercially redistribute or publish derivative apps
+	•	⚖️ All rights reserved by the author
+
+For details, see [LICENSE](/LICENSE.md).
