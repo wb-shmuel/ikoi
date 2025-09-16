@@ -470,6 +470,11 @@ const SessionScreen: React.FC = () => {
         ) : (
           /* Session Phase */
           <>
+            {/* Breathing guide text above circle, below timer */}
+            <Text style={styles.breathingGuideTop}>
+              4s inhale • 7s hold • 8s exhale
+            </Text>
+
             {/* Breathing Circle - Only visible after countdown */}
             <Animated.View style={[styles.breathingCircle, breathingStyle]}>
               <View style={styles.circleInner}>
@@ -481,11 +486,6 @@ const SessionScreen: React.FC = () => {
                 </Text>
               </View>
             </Animated.View>
-
-            {/* Breathing guide text below circle */}
-            <Text style={styles.breathingGuide}>
-              4s inhale • 7s hold • 8s exhale
-            </Text>
           </>
         )}
       </View>
@@ -572,7 +572,6 @@ const styles = StyleSheet.create({
     borderColor: '#FFD58A',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: ResponsiveScale.spacing(40),
     backgroundColor: 'rgba(255, 213, 138, 0.1)',
   },
   circleInner: {
@@ -591,17 +590,21 @@ const styles = StyleSheet.create({
     fontWeight: '200',
     color: '#FFD58A',
   },
-  breathingGuide: {
+  breathingGuideTop: {
     fontSize: ResponsiveScale.isTablet ? 16 : 14,
     color: '#A8ADB5',
     textAlign: 'center',
-    marginTop: ResponsiveScale.spacing(20),
     fontStyle: 'italic',
+    marginBottom: ResponsiveScale.spacing(15),
+    position: 'absolute',
+    top: ResponsiveScale.spacing(5),
+    left: 0,
+    right: 0,
   },
   finishButton: {
-    paddingHorizontal: ResponsiveScale.spacing(30),
-    paddingVertical: ResponsiveScale.spacing(12),
-    borderRadius: ResponsiveScale.scale(25),
+    paddingHorizontal: ResponsiveScale.spacing(20),
+    paddingVertical: ResponsiveScale.spacing(8),
+    borderRadius: ResponsiveScale.scale(20),
     borderWidth: 1,
     borderColor: '#A8ADB5',
   },
@@ -619,7 +622,7 @@ const styles = StyleSheet.create({
   },
   bottomButtonContainer: {
     position: 'absolute',
-    bottom: ResponsiveScale.spacing(60),
+    bottom: ResponsiveScale.spacing(30),
     left: 0,
     right: 0,
     alignItems: 'center',

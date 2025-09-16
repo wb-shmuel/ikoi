@@ -52,7 +52,7 @@ export class ResponsiveScale {
    */
   static getBreathingCircleSize(): number {
     const baseSize = 280;
-    const scaledSize = this.scale(baseSize, 2.5);
+    const scaledSize = this.scale(baseSize, 1.5);
 
     // Ensure minimum and maximum bounds
     return Math.max(280, Math.min(scaledSize, 600));

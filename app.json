@@ -18,7 +18,8 @@
       "icon": "./assets/images/icon-1024.png",
       "supportsTablet": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UISupportedInterfaceOrientations~ipad": ["UIInterfaceOrientationPortrait"]
       }
     },
     "android": {
@@ -29,6 +30,7 @@
         "monochromeImage": "./assets/images/adaptive-monochrome.png"
       },
       "edgeToEdgeEnabled": true
+
     },
     "web": {
       "bundler": "metro",
