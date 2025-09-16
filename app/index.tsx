@@ -89,14 +89,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: ResponsiveScale.spacing(24),
+    flexDirection: ResponsiveScale.isTablet ? 'row' : 'column', // Horizontal on iPad
   },
   durationButton: {
     backgroundColor: QuickCalmColors.accent,
     borderRadius: ResponsiveScale.scale(20),
-    paddingVertical: ResponsiveScale.spacing(24),
-    paddingHorizontal: ResponsiveScale.spacing(48),
-    minWidth: ResponsiveScale.getButtonWidth(),
+    paddingVertical: ResponsiveScale.isTablet ? 0 : ResponsiveScale.spacing(24),
+    paddingHorizontal: ResponsiveScale.isTablet ? 0 : ResponsiveScale.spacing(48),
+    width: ResponsiveScale.isTablet ? 180 : ResponsiveScale.getButtonWidth(),
+    height: ResponsiveScale.isTablet ? 180 : undefined,
+    minWidth: ResponsiveScale.isTablet ? undefined : ResponsiveScale.getButtonWidth(),
     alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: QuickCalmColors.accent,
     shadowOffset: {
       width: 0,

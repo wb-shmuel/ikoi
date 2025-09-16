@@ -482,6 +482,10 @@ const SessionScreen: React.FC = () => {
               </View>
             </Animated.View>
 
+            {/* Breathing guide text below circle */}
+            <Text style={styles.breathingGuide}>
+              4s inhale • 7s hold • 8s exhale
+            </Text>
           </>
         )}
       </View>
@@ -493,7 +497,7 @@ const SessionScreen: React.FC = () => {
             style={styles.finishButton}
             onPress={handleFinishSession}
           >
-            <Text style={styles.finishButtonText}>
+            <Text style={[styles.finishButtonText, { color: '#FFFFFF' }]}>
               End
             </Text>
           </TouchableOpacity>
@@ -588,10 +592,10 @@ const styles = StyleSheet.create({
     color: '#FFD58A',
   },
   breathingGuide: {
-    fontSize: 14,
+    fontSize: ResponsiveScale.isTablet ? 16 : 14,
     color: '#A8ADB5',
     textAlign: 'center',
-    marginBottom: ResponsiveScale.spacing(60),
+    marginTop: ResponsiveScale.spacing(20),
     fontStyle: 'italic',
   },
   finishButton: {
