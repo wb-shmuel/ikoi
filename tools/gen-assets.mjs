@@ -3,8 +3,8 @@ import path from "node:path";
 import replaceColor from "replace-color";
 import sharp from "sharp";
 
-const SRC = "assets/source/flame-navy.png";      // 生成済みのアイコン画像（濃い青背景＋炎）
-const OUT = "assets/build";
+const SRC = "assets/source/be-bored-icon.png";      // 生成済みのアイコン画像（濃い青背景＋炎）
+const OUT = "assets/images";
 const NAVY = "#0D1320";                          // 背景の濃紺（近似色を透過にします）
 const TOLERANCE = 20;                             // 背景除去の色許容（8〜30の間で調整）
 

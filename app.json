@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/images/splash-2048.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0F1115"
+      "backgroundColor": "#0B0B0B"
     },
     "ios": {
       "bundleIdentifier": "com.arise.bebored",
@@ -26,11 +26,10 @@
       "package": "com.arise.bebored",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-foreground.png",
-        "backgroundColor": "#0F1115",
+        "backgroundColor": "#0B0B0B",
         "monochromeImage": "./assets/images/adaptive-monochrome.png"
       },
       "edgeToEdgeEnabled": true
-
     },
     "web": {
       "bundler": "metro",
@@ -45,7 +44,7 @@
           "image": "./assets/images/splash-2048.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#0F1115"
+          "backgroundColor": "#0B0B0B"
         }
       ]
     ],
