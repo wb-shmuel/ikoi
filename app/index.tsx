@@ -1,12 +1,14 @@
+import { TimerPicker } from '@/components/TimerPicker';
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import type { SessionDuration } from '@/types/QuickCalm';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function DurationPicker() {
   const router = useRouter();
+  const [selectedDuration, setSelectedDuration] = useState<SessionDuration>(3);
 
   const handleDurationSelect = (duration: SessionDuration) => {
     router.push({
@@ -15,7 +17,9 @@ export default function DurationPicker() {
     });
   };
 
-  const durations: SessionDuration[] = [5, 10, 15];
+  const handleStartSession = () => {
+    handleDurationSelect(selectedDuration);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -24,23 +28,36 @@ export default function DurationPicker() {
         <View style={styles.header}>
           <Text style={styles.title}>Be Bored</Text>
           <Text style={styles.subtitle}>
-            Choose your time to be bored
+            Choose your time...
           </Text>
         </View>
 
-        {/* Duration Buttons */}
-        <View style={styles.buttonsContainer}>
-          {durations.map((duration) => (
-            <TouchableOpacity
-              key={duration}
-              style={styles.durationButton}
-              onPress={() => handleDurationSelect(duration)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.durationText}>{duration}</Text>
-              <Text style={styles.minutesText}>min</Text>
-            </TouchableOpacity>
-          ))}
+        {/* Timer Picker */}
+        <View style={styles.pickerContainer}>
+          {/* Large Display */}
+          <View style={styles.largeDisplay}>
+            <Text style={styles.largeNumber}>{selectedDuration}</Text>
+            <Text style={styles.minutesLabel}>minutes</Text>
+          </View>
+
+          {/* Scrollable Picker */}
+          <View style={styles.pickerWrapper}>
+            <TimerPicker
+              selectedValue={selectedDuration}
+              onValueChange={setSelectedDuration}
+              minValue={1}
+              maxValue={60}
+            />
+          </View>
+
+          {/* Start Session Button */}
+          <TouchableOpacity
+            style={styles.startButton}
+            onPress={handleStartSession}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.startButtonText}>Start Session</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Footer */}
@@ -62,16 +79,24 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'space-between',
-    paddingHorizontal: ResponsiveScale.spacing(24),
-    paddingTop: ResponsiveScale.spacing(60),
+    paddingHorizontal: ResponsiveScale.isTablet
+      ? ResponsiveScale.spacing(48, 1.5)
+      : ResponsiveScale.spacing(24),
+    paddingTop: ResponsiveScale.isTablet
+      ? ResponsiveScale.spacing(80, 1.2)
+      : ResponsiveScale.spacing(60),
     paddingBottom: ResponsiveScale.spacing(40),
   },
   header: {
     alignItems: 'center',
-    marginBottom: ResponsiveScale.spacing(60),
+    marginBottom: ResponsiveScale.isTablet
+      ? ResponsiveScale.spacing(40, 1.2)
+      : ResponsiveScale.spacing(60),
   },
   title: {
-    fontSize: ResponsiveScale.fontSize(36),
+    fontSize: ResponsiveScale.isTablet
+      ? ResponsiveScale.fontSize(42, 1.5)
+      : ResponsiveScale.fontSize(36),
     fontWeight: 'bold',
     color: QuickCalmColors.primaryText,
     marginBottom: ResponsiveScale.spacing(16),
@@ -84,21 +109,52 @@ const styles = StyleSheet.create({
     lineHeight: ResponsiveScale.fontSize(26),
     maxWidth: ResponsiveScale.getMaxTextWidth(),
   },
-  buttonsContainer: {
+  pickerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: ResponsiveScale.spacing(24),
-    flexDirection: ResponsiveScale.isTablet ? 'row' : 'column', // Horizontal on iPad
+    paddingHorizontal: ResponsiveScale.isTablet
+      ? ResponsiveScale.spacing(40, 1.0)
+      : ResponsiveScale.spacing(20),
+    maxWidth: ResponsiveScale.isTablet ? 600 : '100%',
+    alignSelf: 'center',
+    width: '100%',
   },
-  durationButton: {
+  largeDisplay: {
+    alignItems: 'center',
+    marginBottom: ResponsiveScale.spacing(24),
+  },
+  largeNumber: {
+    fontSize: ResponsiveScale.isTablet
+      ? ResponsiveScale.fontSize(72, 1.3)
+      : ResponsiveScale.fontSize(64),
+    fontWeight: '200',
+    color: QuickCalmColors.accent,
+    textAlign: 'center',
+    lineHeight: ResponsiveScale.isTablet
+      ? ResponsiveScale.fontSize(80, 1.3)
+      : ResponsiveScale.fontSize(72),
+  },
+  minutesLabel: {
+    fontSize: ResponsiveScale.isTablet
+      ? ResponsiveScale.fontSize(20, 1.3)
+      : ResponsiveScale.fontSize(18),
+    color: QuickCalmColors.secondaryText,
+    textAlign: 'center',
+    marginTop: ResponsiveScale.spacing(-8),
+  },
+  pickerWrapper: {
+    alignItems: 'center',
+    marginVertical: ResponsiveScale.spacing(24),
+  },
+  startButton: {
     backgroundColor: QuickCalmColors.accent,
     borderRadius: ResponsiveScale.scale(20),
-    paddingVertical: ResponsiveScale.isTablet ? 0 : ResponsiveScale.spacing(24),
-    paddingHorizontal: ResponsiveScale.isTablet ? 0 : ResponsiveScale.spacing(48),
-    width: ResponsiveScale.isTablet ? 180 : ResponsiveScale.getButtonWidth(),
-    height: ResponsiveScale.isTablet ? 180 : undefined,
-    minWidth: ResponsiveScale.isTablet ? undefined : ResponsiveScale.getButtonWidth(),
+    paddingVertical: ResponsiveScale.spacing(16),
+    paddingHorizontal: ResponsiveScale.spacing(48),
+    minWidth: ResponsiveScale.isTablet
+      ? Math.min(ResponsiveScale.scale(300), 400)
+      : ResponsiveScale.getButtonWidth() * 0.8,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: QuickCalmColors.accent,
@@ -110,15 +166,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-  durationText: {
-    fontSize: ResponsiveScale.fontSize(32),
-    fontWeight: 'bold',
+  startButtonText: {
+    fontSize: ResponsiveScale.fontSize(18),
+    fontWeight: '600',
     color: QuickCalmColors.buttonText,
-  },
-  minutesText: {
-    fontSize: ResponsiveScale.fontSize(16),
-    color: QuickCalmColors.buttonText,
-    marginTop: ResponsiveScale.spacing(4),
   },
   footer: {
     alignItems: 'center',

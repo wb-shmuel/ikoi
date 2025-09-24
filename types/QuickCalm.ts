@@ -2,7 +2,7 @@
  * TypeScript types for Be Bored app
  */
 
-export type SessionDuration = 5 | 10 | 15;
+export type SessionDuration = number;
 
 export type BreathingPhase = 'inhale' | 'hold' | 'exhale';
 
