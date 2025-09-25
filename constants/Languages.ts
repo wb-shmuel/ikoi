@@ -10,6 +10,7 @@ export interface Translations {
   resume: string;
 
   // Home Screen
+  sessionInstructions: string;
   breathingInstruction: string;
 
   // Session Screen
@@ -37,6 +38,7 @@ export const translations: Record<Language, Translations> = {
     resume: 'Resume',
 
     // Home Screen
+    sessionInstructions: 'Set your session duration and tap the start button',
     breathingInstruction: '4s inhale • 7s hold • 8s exhale',
 
     // Session Screen
@@ -62,6 +64,7 @@ export const translations: Record<Language, Translations> = {
     resume: 'Resume',
 
     // Home Screen
+    sessionInstructions: 'セッション時間を設定して、セッション開始ボタンを押してください',
     breathingInstruction: '4秒で吸って • 7秒止めて • 8秒で吐く',
 
     // Session Screen

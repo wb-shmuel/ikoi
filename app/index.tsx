@@ -56,6 +56,9 @@ export default function DurationPicker() {
 
         <View style={styles.landscapeContent}>
           <View style={styles.landscapeTimerSection}>
+            <Text style={styles.landscapeInstructionsText}>
+              {t.sessionInstructions}
+            </Text>
             <TimerDisplay
               selectedValue={selectedDuration}
               onValueChange={setSelectedDuration}
@@ -100,6 +103,10 @@ export default function DurationPicker() {
       </View>
 
       <View style={styles.content}>
+        <Text style={styles.instructionsText}>
+          {t.sessionInstructions}
+        </Text>
+
         <TimerDisplay
           selectedValue={selectedDuration}
           onValueChange={setSelectedDuration}
@@ -220,5 +227,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: ResponsiveScale.fontSize(20, 2.0),
     maxWidth: ResponsiveScale.isTablet ? 360 : 280, // Match button width for alignment
+  },
+  instructionsText: {
+    fontSize: ResponsiveScale.fontSize(16, 2.0),
+    color: QuickCalmColors.primaryText,
+    textAlign: 'center',
+    lineHeight: ResponsiveScale.fontSize(22, 2.0),
+    marginBottom: ResponsiveScale.spacing(24),
+    maxWidth: ResponsiveScale.isTablet ? 400 : 320,
+    opacity: 0.9,
+  },
+  landscapeInstructionsText: {
+    fontSize: ResponsiveScale.fontSize(14, 2.0),
+    color: QuickCalmColors.primaryText,
+    textAlign: 'center',
+    lineHeight: ResponsiveScale.fontSize(20, 2.0),
+    marginBottom: ResponsiveScale.spacing(20),
+    maxWidth: ResponsiveScale.isTablet ? 350 : 280,
+    opacity: 0.9,
   },
 });
