@@ -521,12 +521,6 @@ const SessionScreen: React.FC = () => {
                   {formatT('sessionStartsIn', { duration: duration.toString() })}
                 </Text>
 
-                <View style={styles.timerDisplay}>
-                  <Text style={styles.timerText}>
-                    {formatTime(totalSeconds)}
-                  </Text>
-                </View>
-
                 {/* Unified Countdown Circle with all text inside */}
                 <View style={styles.circleInner}>
                   <Text style={styles.countdownNumber}>
