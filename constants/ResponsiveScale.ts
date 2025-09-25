@@ -65,9 +65,11 @@ export class ResponsiveScale {
    */
   static getBreathingCircleSize(): number {
     if (this.isLandscape) {
-      return this.isTablet ? 500 : 300;
+      // 横向きの場合は画面の高さを基準にサイズを決定
+      const maxSize = Math.min(this.screenHeight * 0.5, this.isTablet ? 320 : 180);
+      return Math.max(180, maxSize);
     }
-    
+
     const baseSize = 280;
     const scaledSize = this.scale(baseSize, 1.5);
 
@@ -164,7 +166,7 @@ export class ResponsiveScale {
   static getLandscapeSessionLayout() {
     return {
       leftZoneWidth: '25%',
-      centerZoneWidth: '50%', 
+      centerZoneWidth: '50%',
       rightZoneWidth: '25%',
       containerPadding: this.spacing(this.isTablet ? 40 : 20),
     };

@@ -435,13 +435,11 @@ const SessionScreen: React.FC = () => {
               </Text>
 
               {/* Unified Landscape Countdown Circle with all text inside */}
-              <View style={styles.landscapeCountdownCircle}>
-                <View style={styles.circleInner}>
-                  <Text style={styles.landscapeCountdownPhaseText}>{t.getReady}</Text>
-                  <Text style={styles.landscapeCountdownNumber}>
-                    {countdownSeconds === 0 ? t.begin : countdownSeconds}
-                  </Text>
-                </View>
+              <View style={styles.circleInner}>
+                <Text style={styles.landscapeCountdownPhaseText}>{t.getReady}</Text>
+                <Text style={styles.landscapeCountdownNumber}>
+                  {countdownSeconds === 0 ? t.begin : countdownSeconds}
+                </Text>
               </View>
             </Animated.View>
           ) : (
@@ -518,13 +516,11 @@ const SessionScreen: React.FC = () => {
                 </View>
 
                 {/* Unified Countdown Circle with all text inside */}
-                <View style={styles.countdownCircle}>
-                  <View style={styles.circleInner}>
-                    <Text style={styles.countdownPhaseText}>{t.getReady}</Text>
-                    <Text style={styles.countdownNumber}>
-                      {countdownSeconds === 0 ? t.begin : countdownSeconds}
-                    </Text>
-                  </View>
+                <View style={styles.circleInner}>
+                  <Text style={styles.countdownPhaseText}>{t.getReady}</Text>
+                  <Text style={styles.countdownNumber}>
+                    {countdownSeconds === 0 ? t.begin : countdownSeconds}
+                  </Text>
                 </View>
               </Animated.View>
             ) : (
@@ -766,9 +762,9 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
   },
   landscapeBreathingCircle: {
-    width: ResponsiveScale.isTablet ? 320 : 260,
-    height: ResponsiveScale.isTablet ? 320 : 260,
-    borderRadius: ResponsiveScale.isTablet ? 160 : 130,
+    width: ResponsiveScale.getBreathingCircleSize(),
+    height: ResponsiveScale.getBreathingCircleSize(),
+    borderRadius: ResponsiveScale.getBreathingCircleSize() / 2,
     borderWidth: 2,
     borderColor: 'rgba(255, 213, 138, 0.6)',
     justifyContent: 'center',

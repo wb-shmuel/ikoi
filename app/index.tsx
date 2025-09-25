@@ -59,8 +59,8 @@ export default function DurationPicker() {
               activeOpacity={0.8}
             >
               <View style={styles.buttonTextContainer}>
-                <Text style={styles.buttonText}>{t.start}</Text>
-                <Text style={styles.buttonText}>{t.session}</Text>
+                <Text style={styles.buttonText}>{t.session_button_1}</Text>
+                <Text style={styles.buttonText}>{t.session_button_2}</Text>
               </View>
             </TouchableOpacity>
           </View>
