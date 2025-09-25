@@ -21,7 +21,7 @@ interface TimerPickerProps {
 // Responsive item height: phone 44px, tablet 56px
 const ITEM_HEIGHT = ResponsiveScale.isTablet ? 56 : 44;
 
-const VISIBLE_ITEMS = 5;
+const VISIBLE_ITEMS = 3;
 const PICKER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
 
 export const TimerPicker: React.FC<TimerPickerProps> = ({

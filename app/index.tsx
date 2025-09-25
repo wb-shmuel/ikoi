@@ -83,21 +83,24 @@ const styles = StyleSheet.create({
   landscapeContent: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between', // Changed from 'center' to prevent overlap
     alignItems: 'center',
     paddingHorizontal: ResponsiveScale.spacing(48), // xl spacing for screen margins
-    gap: ResponsiveScale.spacing(40), // landscape-specific gap
+    paddingVertical: ResponsiveScale.spacing(20), // Add vertical padding
+    gap: ResponsiveScale.spacing(60), // Increased gap from 40 to 60 for better separation
   },
   landscapeTimerSection: {
-    flex: 0.6, // 60% width
+    flex: 0.55, // Reduced from 0.6 to 0.55 for more breathing room
     justifyContent: 'center',
     alignItems: 'center',
+    minHeight: ResponsiveScale.isTablet ? 350 : 300, // Ensure minimum height for timer visibility
   },
   landscapeActionSection: {
-    flex: 0.4, // 40% width
+    flex: 0.35, // Reduced from 0.4 to 0.35 for more breathing room
     justifyContent: 'center',
     alignItems: 'center',
     gap: ResponsiveScale.spacing(16), // sm spacing between button and instructions
+    minHeight: ResponsiveScale.isTablet ? 120 : 100, // Ensure minimum height for button section
   },
 
   // Responsive button sizing - iPhone: 280x48, iPad: 360x56
