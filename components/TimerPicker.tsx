@@ -18,8 +18,8 @@ interface TimerPickerProps {
   maxValue?: number;
 }
 
-// Simplified consistent item height
-const ITEM_HEIGHT = 44;
+// Responsive item height: phone 44px, tablet 56px
+const ITEM_HEIGHT = ResponsiveScale.isTablet ? 56 : 44;
 
 const VISIBLE_ITEMS = 5;
 const PICKER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
@@ -166,7 +166,7 @@ export const TimerPicker: React.FC<TimerPickerProps> = ({
 const styles = StyleSheet.create({
   container: {
     height: PICKER_HEIGHT,
-    width: 200, // Simplified fixed width
+    width: ResponsiveScale.isTablet ? 280 : 200, // Responsive width: phone 200px, tablet 280px
     position: 'relative',
     overflow: 'hidden',
   },
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemText: {
-    fontSize: 16, // Consistent with design system
+    fontSize: ResponsiveScale.fontSize(16, 2.0), // Responsive font size
     color: QuickCalmColors.secondaryText,
     fontWeight: '400',
   },

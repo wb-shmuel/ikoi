@@ -1,5 +1,6 @@
 import { TimerPicker } from '@/components/TimerPicker';
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
+import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import type { SessionDuration } from '@/types/QuickCalm';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -36,24 +37,24 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     backgroundColor: 'rgba(255, 213, 138, 0.08)',
-    borderRadius: 12,
-    paddingVertical: 24,
-    paddingHorizontal: 32,
+    borderRadius: ResponsiveScale.scale(12),
+    paddingVertical: ResponsiveScale.spacing(24),
+    paddingHorizontal: ResponsiveScale.spacing(32),
   },
   timerHeader: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: ResponsiveScale.spacing(24),
   },
   timerNumber: {
-    fontSize: 48,
+    fontSize: ResponsiveScale.fontSize(48, 2.2),
     fontWeight: '300',
     color: QuickCalmColors.accent,
     textAlign: 'center',
   },
   minutesLabel: {
-    fontSize: 18,
+    fontSize: ResponsiveScale.fontSize(18, 2.0),
     color: QuickCalmColors.secondaryText,
     textAlign: 'center',
-    marginTop: 4, // 4px gap for tight coupling
+    marginTop: ResponsiveScale.spacing(4), // 4px gap for tight coupling
   },
 });
