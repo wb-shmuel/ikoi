@@ -36,7 +36,10 @@ export default function DurationPicker() {
               onPress={handleStartSession}
               activeOpacity={0.8}
             >
-              <Text style={styles.buttonText}>Start Session</Text>
+              <View style={styles.buttonTextContainer}>
+                <Text style={styles.buttonText}>Start</Text>
+                <Text style={styles.buttonText}>Session</Text>
+              </View>
             </TouchableOpacity>
           </View>
         </View>
@@ -57,7 +60,10 @@ export default function DurationPicker() {
           onPress={handleStartSession}
           activeOpacity={0.8}
         >
-          <Text style={styles.buttonText}>Start Session</Text>
+          <View style={styles.buttonTextContainer}>
+            <Text style={styles.buttonText}>Start</Text>
+            <Text style={styles.buttonText}>Session</Text>
+          </View>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -103,12 +109,12 @@ const styles = StyleSheet.create({
     minHeight: ResponsiveScale.isTablet ? 120 : 100, // Ensure minimum height for button section
   },
 
-  // Responsive button sizing - iPhone: 280x48, iPad: 360x56
+  // Circular button sizing - iPhone: 160x160, iPad: 180x180
   button: {
     backgroundColor: QuickCalmColors.accent,
-    borderRadius: ResponsiveScale.scale(12),
-    width: ResponsiveScale.isTablet ? 360 : 280,
-    height: ResponsiveScale.isTablet ? 56 : 48,
+    width: ResponsiveScale.isTablet ? 180 : 160,
+    height: ResponsiveScale.isTablet ? 180 : 160,
+    borderRadius: ResponsiveScale.isTablet ? 90 : 80, // Half of width/height for perfect circle
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: QuickCalmColors.accent,
@@ -122,10 +128,16 @@ const styles = StyleSheet.create({
   },
 
   // Typography system
+  buttonTextContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   buttonText: {
-    fontSize: ResponsiveScale.fontSize(16, 2.0), // Standard button text with scaling
+    fontSize: ResponsiveScale.fontSize(16, 1.8), // Adjusted font size for circular button
     fontWeight: '600',
     color: QuickCalmColors.buttonText,
+    textAlign: 'center',
+    lineHeight: ResponsiveScale.fontSize(18, 1.8), // Tighter line height for controlled spacing
   },
   instructions: {
     fontSize: ResponsiveScale.fontSize(14, 2.0), // Instructions text with scaling
