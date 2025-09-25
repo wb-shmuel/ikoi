@@ -92,7 +92,7 @@ The app uses a sophisticated responsive scaling system (`ResponsiveScale`) and s
 ### Visual Layout (Phone Landscape)
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  ← 14:23    4s inhale • 7s hold • 8s exhale    ⏸                          │
+│  ← 14:23                                         ⏸                          │
 │                                                                             │
 │                               ┌─────────────┐                              │
 │    Take a deep breath          │             │                              │
@@ -108,7 +108,7 @@ The app uses a sophisticated responsive scaling system (`ResponsiveScale`) and s
 ### Visual Layout (Tablet Landscape)
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│  ← 14:23         4s inhale • 7s hold • 8s exhale         ⏸                             │
+│  ← 14:23                                                  ⏸                             │
 │                                                                                          │
 │                                                                                          │
 │      Take a deep breath            ┌───────────────────┐                      End       │

@@ -62,7 +62,6 @@
 - Center:
   - Breathing circle with amber glow
   - Phase label + countdown seconds
-  - Sub-guide: `4s inhale • 7s hold • 8s exhale`
 - Bottom:
   - End/Finish button
   - At 0 remaining, changes to “Finish” and highlights in amber

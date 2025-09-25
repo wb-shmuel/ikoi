@@ -423,43 +423,65 @@ const SessionScreen: React.FC = () => {
       </View>
 
       {/* Landscape Layout */}
-      {orientation.isLandscape && !isInCountdown ? (
-        <>
-          {/* Left Zone (25%) - Back button and timer */}
-          <View style={styles.landscapeLeftZone}>
-            <Text style={styles.landscapeTimeText}>
-              {formatTime(timeRemaining)}
-            </Text>
-          </View>
+      {orientation.isLandscape ? (
+        <View style={styles.landscapeContainer}>
+          {isInCountdown ? (
+            /* Landscape Countdown Phase */
+            <Animated.View style={[styles.landscapeCountdownContainer, countdownStyle]}>
+              <Text style={styles.landscapeSubtitleText}>
+                Your {duration}-minute session starts in
+              </Text>
 
-          {/* Center Zone (50%) - Breathing circle */}
-          <View style={styles.landscapeCenterZone}>
-            <Animated.View style={[styles.landscapeBreathingCircle, breathingStyle]}>
-              <View style={styles.circleInner}>
-                <Text style={styles.landscapePhaseText}>
-                  {getPhaseText()}
-                </Text>
-                <Text style={styles.landscapePhaseCounter}>
-                  {phaseTime}
-                </Text>
+              {/* Unified Landscape Countdown Circle with all text inside */}
+              <View style={styles.landscapeCountdownCircle}>
+                <View style={styles.circleInner}>
+                  <Text style={styles.landscapeCountdownPhaseText}>Get Ready</Text>
+                  <Text style={styles.landscapeCountdownNumber}>
+                    {countdownSeconds === 0 ? 'Begin' : countdownSeconds}
+                  </Text>
+                </View>
               </View>
-            </Animated.View>
-          </View>
 
-          {/* Right Zone (25%) - Phase text and pause button */}
-          <View style={styles.landscapeRightZone}>
-            <TouchableOpacity
-              style={styles.landscapePauseButton}
-              onPress={isPaused ? resumeSession : pauseSession}
-            >
-              <Ionicons
-                name={isPaused ? 'play' : 'pause'}
-                size={ResponsiveScale.fontSize(28)}
-                color="#E6E6E6"
-              />
-            </TouchableOpacity>
-          </View>
-        </>
+              <Text style={styles.landscapeInstructionText}>
+                Take a deep breath and prepare to relax
+              </Text>
+            </Animated.View>
+          ) : (
+            /* Landscape Session Phase */
+            <>
+              {/* Top Status Bar */}
+              <View style={styles.landscapeTopBar}>
+                <Text style={styles.landscapeTimeText}>
+                  {formatTime(timeRemaining)}
+                </Text>
+                <TouchableOpacity
+                  style={styles.landscapePauseButton}
+                  onPress={isPaused ? resumeSession : pauseSession}
+                >
+                  <Ionicons
+                    name={isPaused ? 'play' : 'pause'}
+                    size={ResponsiveScale.fontSize(24)}
+                    color="#E6E6E6"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              {/* Main Breathing Area - Centered over candle flame */}
+              <View style={styles.landscapeBreathingArea}>
+                <Animated.View style={[styles.landscapeBreathingCircle, breathingStyle]}>
+                  <View style={styles.circleInner}>
+                    <Text style={styles.landscapePhaseText}>
+                      {getPhaseText()}
+                    </Text>
+                    <Text style={styles.landscapePhaseCounter}>
+                      {phaseTime}
+                    </Text>
+                  </View>
+                </Animated.View>
+              </View>
+            </>
+          )}
+        </View>
       ) : (
         <>
           {/* Portrait Layout - Top Bar - Hidden during countdown */}
@@ -487,7 +509,6 @@ const SessionScreen: React.FC = () => {
             {isInCountdown ? (
               /* Countdown Phase */
               <Animated.View style={[styles.countdownContent, countdownStyle]}>
-                <Text style={styles.titleText}>Get Ready</Text>
                 <Text style={styles.subtitleText}>
                   Your {duration}-minute session starts in
                 </Text>
@@ -498,11 +519,14 @@ const SessionScreen: React.FC = () => {
                   </Text>
                 </View>
 
-                {/* Countdown Circle */}
+                {/* Unified Countdown Circle with all text inside */}
                 <View style={styles.countdownCircle}>
-                  <Text style={styles.countdownNumber}>
-                    {countdownSeconds === 0 ? 'Begin' : countdownSeconds}
-                  </Text>
+                  <View style={styles.circleInner}>
+                    <Text style={styles.countdownPhaseText}>Get Ready</Text>
+                    <Text style={styles.countdownNumber}>
+                      {countdownSeconds === 0 ? 'Begin' : countdownSeconds}
+                    </Text>
+                  </View>
                 </View>
 
                 <Text style={styles.instructionText}>
@@ -630,15 +654,11 @@ const styles = StyleSheet.create({
     color: '#FFD58A',
   },
   breathingGuideTop: {
-    fontSize: ResponsiveScale.isTablet ? 16 : 14,
-    color: '#A8ADB5',
+    fontSize: ResponsiveScale.fontSize(14),
+    color: 'rgba(168, 173, 181, 0.8)',
     textAlign: 'center',
     fontStyle: 'italic',
-    marginBottom: ResponsiveScale.spacing(15),
-    position: 'absolute',
-    top: ResponsiveScale.spacing(5),
-    left: 0,
-    right: 0,
+    marginBottom: ResponsiveScale.spacing(24),
   },
   finishButton: {
     paddingHorizontal: ResponsiveScale.spacing(20),
@@ -712,6 +732,13 @@ const styles = StyleSheet.create({
     fontWeight: '200',
     color: '#FFD58A',
   },
+  countdownPhaseText: {
+    fontSize: ResponsiveScale.fontSize(20),
+    color: '#E6E6E6',
+    textAlign: 'center',
+    marginBottom: ResponsiveScale.spacing(12),
+    fontWeight: '300',
+  },
   instructionText: {
     fontSize: ResponsiveScale.fontSize(18),
     color: '#E6E6E6',
@@ -719,40 +746,31 @@ const styles = StyleSheet.create({
     marginTop: ResponsiveScale.spacing(40),
   },
 
-  // Landscape-specific styles
-  landscapeLeftZone: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: '25%' as const,
-    justifyContent: 'flex-start',
+  // Landscape-specific styles - Optimized for meditation experience
+  landscapeContainer: {
+    flex: 1,
+    flexDirection: 'column',
     alignItems: 'center',
-    paddingTop: ResponsiveScale.spacing(60),
-    paddingHorizontal: ResponsiveScale.spacing(10),
+    justifyContent: 'flex-start',
     zIndex: 10,
   },
-  landscapeCenterZone: {
-    position: 'absolute',
-    left: '25%' as const,
-    top: 0,
-    bottom: 0,
-    width: '50%' as const,
+  landscapeTopBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: ResponsiveScale.spacing(32),
+    paddingTop: ResponsiveScale.spacing(ResponsiveScale.isTablet ? 24 : 16),
+    paddingBottom: ResponsiveScale.spacing(16),
+    zIndex: 20,
+  },
+  landscapeBreathingArea: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10,
-  },
-  landscapeRightZone: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: '25%' as const,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingTop: ResponsiveScale.spacing(60),
-    paddingHorizontal: ResponsiveScale.spacing(10),
-    zIndex: 10,
+    width: '100%',
+    // Shift content up slightly to align with candle flame
+    marginTop: -ResponsiveScale.spacing(40),
   },
   landscapeTimeText: {
     fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 22 : 18),
@@ -761,49 +779,108 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
   },
   landscapeBreathingGuide: {
-    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 18 : 16),
+    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 16 : 14),
     color: '#A8ADB5',
     textAlign: 'center',
     fontStyle: 'italic',
-    marginBottom: ResponsiveScale.spacing(20),
+    marginBottom: ResponsiveScale.spacing(24),
+    opacity: 0.8,
   },
   landscapeBreathingCircle: {
-    width: ResponsiveScale.getBreathingCircleSize(),
-    height: ResponsiveScale.getBreathingCircleSize(),
-    borderRadius: ResponsiveScale.getBreathingCircleSize() / 2,
+    width: ResponsiveScale.isTablet ? 320 : 260,
+    height: ResponsiveScale.isTablet ? 320 : 260,
+    borderRadius: ResponsiveScale.isTablet ? 160 : 130,
     borderWidth: 2,
-    borderColor: '#FFD58A',
+    borderColor: 'rgba(255, 213, 138, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 213, 138, 0.1)',
+    backgroundColor: 'rgba(255, 213, 138, 0.05)',
   },
   landscapePhaseText: {
-    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 24 : 20),
+    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 20 : 16),
     color: '#E6E6E6',
     textAlign: 'center',
     marginBottom: ResponsiveScale.spacing(12),
     fontWeight: '300',
+    letterSpacing: 0.5,
+    opacity: 0.95,
   },
   landscapePhaseCounter: {
     fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 60 : 48),
     fontWeight: '200',
     color: '#FFD58A',
+    textShadowColor: '#FFD58A',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
   },
   landscapePauseButton: {
-    padding: ResponsiveScale.spacing(12),
-    width: ResponsiveScale.scale(52),
-    height: ResponsiveScale.scale(52),
+    padding: ResponsiveScale.spacing(10),
+    width: ResponsiveScale.scale(44),
+    height: ResponsiveScale.scale(44),
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: ResponsiveScale.scale(26),
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: ResponsiveScale.scale(22),
+    backgroundColor: 'rgba(230, 230, 230, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(230, 230, 230, 0.2)',
   },
   landscapeBottomButtonContainer: {
     position: 'absolute',
-    bottom: ResponsiveScale.spacing(20),
-    right: ResponsiveScale.spacing(20),
+    bottom: ResponsiveScale.spacing(24),
+    left: 0,
+    right: 0,
     alignItems: 'center',
     zIndex: 20,
+  },
+
+  // Landscape Countdown styles
+  landscapeCountdownContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: ResponsiveScale.spacing(40),
+  },
+  landscapeTitleText: {
+    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 36 : 28),
+    fontWeight: '300',
+    color: '#E6E6E6',
+    marginBottom: ResponsiveScale.spacing(12),
+    textAlign: 'center',
+  },
+  landscapeSubtitleText: {
+    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 18 : 16),
+    color: '#A8ADB5',
+    textAlign: 'center',
+    marginBottom: ResponsiveScale.spacing(60),
+  },
+  landscapeCountdownCircle: {
+    width: ResponsiveScale.scale(180),
+    height: ResponsiveScale.scale(180),
+    borderRadius: ResponsiveScale.scale(90),
+    borderWidth: 2,
+    borderColor: '#FFD58A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: ResponsiveScale.spacing(40),
+    backgroundColor: 'rgba(255, 213, 138, 0.1)',
+  },
+  landscapeCountdownNumber: {
+    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 64 : 56),
+    fontWeight: '200',
+    color: '#FFD58A',
+  },
+  landscapeCountdownPhaseText: {
+    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 20 : 16),
+    color: '#E6E6E6',
+    textAlign: 'center',
+    marginBottom: ResponsiveScale.spacing(12),
+    fontWeight: '300',
+  },
+  landscapeInstructionText: {
+    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 18 : 16),
+    color: '#E6E6E6',
+    textAlign: 'center',
+    marginTop: ResponsiveScale.spacing(40),
   },
 });
 
