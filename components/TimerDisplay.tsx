@@ -55,8 +55,10 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 213, 138, 0.08)',
+    backgroundColor: 'rgba(15, 17, 21, 0.8)', // Dark background with amber accent border
     borderRadius: ResponsiveScale.scale(12),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 213, 138, 0.3)', // Subtle amber border
     paddingVertical: ResponsiveScale.spacing(20),
     paddingHorizontal: ResponsiveScale.spacing(24),
   },

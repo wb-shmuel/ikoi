@@ -7,6 +7,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Video, ResizeMode } from 'expo-av';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -82,6 +83,19 @@ export default function QuoteScreen() {
   return (
     <TouchableWithoutFeedback onPress={handleScreenTap}>
       <SafeAreaView style={styles.container}>
+        {/* Background candle turn out video */}
+        <Video
+          source={require('@/assets/videos/candle_turn_out.mp4')}
+          style={styles.backgroundVideo}
+          shouldPlay
+          isLooping={false}
+          isMuted
+          resizeMode={ResizeMode.COVER}
+        />
+
+        {/* Dark overlay for better text visibility */}
+        <View style={styles.videoOverlay} />
+
         <View style={styles.content}>
           {/* Quote Text */}
           <Animated.View style={[styles.quoteContainer, quoteStyle]}>
@@ -106,6 +120,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: QuickCalmColors.background,
+  },
+
+  // Background video styles
+  backgroundVideo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.3, // Subtle candle turn out effect
+  },
+  videoOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(15, 17, 21, 0.6)', // Semi-transparent overlay for text readability
   },
   content: {
     flex: 1,

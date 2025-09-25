@@ -3,6 +3,7 @@ import { QuickCalmColors } from '@/constants/QuickCalmColors';
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import { useOrientation } from '@/hooks/useOrientation';
 import type { SessionDuration } from '@/types/QuickCalm';
+import { ResizeMode, Video } from 'expo-av';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -22,6 +23,19 @@ export default function DurationPicker() {
   if (orientation.isLandscape) {
     return (
       <SafeAreaView style={styles.container}>
+        {/* Background candle video */}
+        <Video
+          source={require('@/assets/videos/candle_turn_on.mp4')}
+          style={styles.backgroundVideo}
+          shouldPlay
+          isLooping
+          isMuted
+          resizeMode={ResizeMode.COVER}
+        />
+
+        {/* Dark overlay for better UI visibility - temporarily disabled for testing */}
+        {/* <View style={styles.videoOverlay} /> */}
+
         <View style={styles.landscapeContent}>
           <View style={styles.landscapeTimerSection}>
             <TimerDisplay
@@ -49,6 +63,19 @@ export default function DurationPicker() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Background candle video */}
+      <Video
+        source={require('@/assets/videos/candle_turn_on.mp4')}
+        style={styles.backgroundVideo}
+        shouldPlay
+        isLooping
+        isMuted
+        resizeMode={ResizeMode.COVER}
+      />
+
+      {/* Dark overlay for better UI visibility - temporarily disabled for testing */}
+      {/* <View style={styles.videoOverlay} /> */}
+
       <View style={styles.content}>
         <TimerDisplay
           selectedValue={selectedDuration}
@@ -74,6 +101,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: QuickCalmColors.background,
+  },
+
+  // Background video styles
+  backgroundVideo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.3, // 30% opacity for better UI visibility
+  },
+  videoOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(15, 17, 21, 0.4)', // Lighter overlay to allow video to show through
   },
 
   // Portrait Layout
@@ -125,6 +170,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: ResponsiveScale.scale(4), // Responsive shadow radius
     elevation: 3,
+    opacity: 0.7, // 30% transparency (70% opacity)
   },
 
   // Typography system
