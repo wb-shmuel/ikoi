@@ -41,6 +41,9 @@ const SessionScreen: React.FC = () => {
   const [isInCountdown, setIsInCountdown] = useState(true);
   const [countdownSeconds, setCountdownSeconds] = useState(3);
 
+  // Force re-render key for layout fixes
+  const [layoutKey, setLayoutKey] = useState(0);
+
   const videoRef = useRef<Video>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
   const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -371,6 +374,16 @@ const SessionScreen: React.FC = () => {
     };
   }, [isPaused]);
 
+  // Fix layout dimensions after component mount (addresses startup orientation issues)
+  useEffect(() => {
+    // Small delay to ensure Dimensions.get() returns correct values
+    const timer = setTimeout(() => {
+      setLayoutKey(prev => prev + 1);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   // Initialize media and start countdown on component mount
   useEffect(() => {
     initializeMedia();
@@ -436,7 +449,6 @@ const SessionScreen: React.FC = () => {
 
               {/* Unified Landscape Countdown Circle with all text inside */}
               <View style={styles.circleInner}>
-                <Text style={styles.landscapeCountdownPhaseText}>{t.getReady}</Text>
                 <Text style={styles.landscapeCountdownNumber}>
                   {countdownSeconds === 0 ? t.begin : countdownSeconds}
                 </Text>
@@ -517,7 +529,6 @@ const SessionScreen: React.FC = () => {
 
                 {/* Unified Countdown Circle with all text inside */}
                 <View style={styles.circleInner}>
-                  <Text style={styles.countdownPhaseText}>{t.getReady}</Text>
                   <Text style={styles.countdownNumber}>
                     {countdownSeconds === 0 ? t.begin : countdownSeconds}
                   </Text>
@@ -779,6 +790,8 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     letterSpacing: 0.5,
     opacity: 0.95,
+    maxWidth: ResponsiveScale.scale(300),
+    lineHeight: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 26 : 22),
   },
   landscapePhaseCounter: {
     fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 60 : 48),

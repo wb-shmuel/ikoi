@@ -2,19 +2,10 @@ import { Dimensions } from 'react-native';
 
 export type Orientation = 'portrait' | 'landscape';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// Determine current orientation
-const CURRENT_ORIENTATION: Orientation = SCREEN_WIDTH > SCREEN_HEIGHT ? 'landscape' : 'portrait';
+// Remove static screen size variables - use dynamic getters instead
 
 // Base dimensions (iPhone 14 - 390x844)
 const BASE_WIDTH = 390;
-
-// Calculate scale factors
-const widthScale = SCREEN_WIDTH / BASE_WIDTH;
-
-// Use width-based scaling primarily, with reasonable limits
-const SCALE_FACTOR = Math.min(widthScale, 2.5); // Max 2.5x scaling for very large screens
 
 /**
  * Responsive scaling utility for iPad support
@@ -22,12 +13,39 @@ const SCALE_FACTOR = Math.min(widthScale, 2.5); // Max 2.5x scaling for very lar
  */
 export class ResponsiveScale {
   /**
+   * Get current screen dimensions dynamically
+   */
+  static getCurrentDimensions() {
+    return Dimensions.get('window');
+  }
+
+  /**
+   * Get current orientation dynamically
+   */
+  static getCurrentOrientation(): Orientation {
+    const { width, height } = this.getCurrentDimensions();
+    return width > height ? 'landscape' : 'portrait';
+  }
+
+  /**
+   * Get current scale factor based on device's shorter dimension (portrait width)
+   */
+  static getScaleFactor(): number {
+    const { width, height } = this.getCurrentDimensions();
+    // Always use the shorter dimension as the reference width, regardless of current orientation
+    const deviceWidth = Math.min(width, height);
+    const widthScale = deviceWidth / BASE_WIDTH;
+    return Math.min(widthScale, 2.5); // Max 2.5x scaling for very large screens
+  }
+
+  /**
    * Scale a dimension proportionally
    * @param size Base size (designed for iPhone)
    * @param maxScale Maximum scaling factor (default: 2.5)
    */
   static scale(size: number, maxScale: number = 2.5): number {
-    const scaledSize = size * SCALE_FACTOR;
+    const scaleFactor = this.getScaleFactor();
+    const scaledSize = size * scaleFactor;
     return Math.min(scaledSize, size * maxScale);
   }
 
@@ -38,7 +56,8 @@ export class ResponsiveScale {
    * @param landscapeMultiplier Optional landscape scaling (default: no extra scaling)
    */
   static fontSize(fontSize: number, maxScale: number = 2.2, landscapeMultiplier?: number): number {
-    const fontScale = Math.min(SCALE_FACTOR, maxScale);
+    const scaleFactor = this.getScaleFactor();
+    const fontScale = Math.min(scaleFactor, maxScale);
     const baseFontSize = fontSize * fontScale;
 
     // Apply landscape scaling multiplier only when explicitly requested
@@ -55,7 +74,8 @@ export class ResponsiveScale {
    * @param maxScale Maximum spacing scaling (default: 2.0)
    */
   static spacing(spacing: number, maxScale: number = 2.0): number {
-    const spacingScale = Math.min(SCALE_FACTOR, maxScale);
+    const scaleFactor = this.getScaleFactor();
+    const spacingScale = Math.min(scaleFactor, maxScale);
     return spacing * spacingScale;
   }
 
@@ -96,37 +116,39 @@ export class ResponsiveScale {
 
   // Device type detection helpers
   static get isTablet(): boolean {
-    return SCREEN_WIDTH >= 768 || SCREEN_HEIGHT >= 768; // iPad mini and larger
+    const { width, height } = this.getCurrentDimensions();
+    return width >= 768 || height >= 768; // iPad mini and larger
   }
 
   static get isLargeTablet(): boolean {
-    return SCREEN_WIDTH >= 834 || SCREEN_HEIGHT >= 834; // iPad Pro and larger
+    const { width, height } = this.getCurrentDimensions();
+    return width >= 834 || height >= 834; // iPad Pro and larger
   }
 
   // Orientation detection helpers
   static get isLandscape(): boolean {
-    return CURRENT_ORIENTATION === 'landscape';
+    return this.getCurrentOrientation() === 'landscape';
   }
 
   static get isPortrait(): boolean {
-    return CURRENT_ORIENTATION === 'portrait';
+    return this.getCurrentOrientation() === 'portrait';
   }
 
   static get orientation(): Orientation {
-    return CURRENT_ORIENTATION;
+    return this.getCurrentOrientation();
   }
 
   // Screen dimension getters
   static get screenWidth(): number {
-    return SCREEN_WIDTH;
+    return this.getCurrentDimensions().width;
   }
 
   static get screenHeight(): number {
-    return SCREEN_HEIGHT;
+    return this.getCurrentDimensions().height;
   }
 
   static get scaleFactor(): number {
-    return SCALE_FACTOR;
+    return this.getScaleFactor();
   }
 
   // Landscape-specific layout helpers

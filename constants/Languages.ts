@@ -13,7 +13,6 @@ export interface Translations {
   breathingInstruction: string;
 
   // Session Screen
-  getReady: string;
   sessionStartsIn: string;
   prepareToRelax: string;
   begin: string;
@@ -41,10 +40,9 @@ export const translations: Record<Language, Translations> = {
     breathingInstruction: '4s inhale • 7s hold • 8s exhale',
 
     // Session Screen
-    getReady: 'Get Ready',
     sessionStartsIn: 'Your {duration}-minute session starts in',
     prepareToRelax: 'Take a deep breath and prepare to relax',
-    begin: 'Begin',
+    begin: '0',
 
     // Breathing Phases
     takeDeepBreath: 'Take a deep breath',
@@ -67,13 +65,12 @@ export const translations: Record<Language, Translations> = {
     breathingInstruction: '4秒で吸って • 7秒止めて • 8秒で吐く',
 
     // Session Screen
-    getReady: '準備してください',
     sessionStartsIn: '{duration}分のセッションを開始します',
     prepareToRelax: '深呼吸をして、リラックスの準備をしましょう',
-    begin: '開始',
+    begin: '0',
 
     // Breathing Phases
-    takeDeepBreath: '深く息を吸ってください',
+    takeDeepBreath: '息を吸ってください',
     stopBreathing: '息を止めてください',
     exhale: '息を吐いてください',
 
