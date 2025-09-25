@@ -1,6 +1,6 @@
-import { TimerPicker } from '@/components/TimerPicker';
+import { TimerDisplay } from '@/components/TimerDisplay';
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
-import { ResponsiveScale } from '@/constants/ResponsiveScale';
+import { useOrientation } from '@/hooks/useOrientation';
 import type { SessionDuration } from '@/types/QuickCalm';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -8,64 +8,56 @@ import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-na
 
 export default function DurationPicker() {
   const router = useRouter();
+  const orientation = useOrientation();
   const [selectedDuration, setSelectedDuration] = useState<SessionDuration>(3);
 
-  const handleDurationSelect = (duration: SessionDuration) => {
+  const handleStartSession = () => {
     router.push({
       pathname: '/session',
-      params: { duration: duration.toString() }
+      params: { duration: selectedDuration.toString() }
     });
   };
 
-  const handleStartSession = () => {
-    handleDurationSelect(selectedDuration);
-  };
+  if (orientation.isLandscape) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.landscapeContent}>
+          <View style={styles.landscapeTimerSection}>
+            <TimerDisplay
+              selectedValue={selectedDuration}
+              onValueChange={setSelectedDuration}
+            />
+          </View>
+
+          <View style={styles.landscapeActionSection}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleStartSession}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.buttonText}>Start Session</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Be Bored</Text>
-          <Text style={styles.subtitle}>
-            Choose your time...
-          </Text>
-        </View>
+        <TimerDisplay
+          selectedValue={selectedDuration}
+          onValueChange={setSelectedDuration}
+        />
 
-        {/* Timer Picker */}
-        <View style={styles.pickerContainer}>
-          {/* Large Display */}
-          <View style={styles.largeDisplay}>
-            <Text style={styles.largeNumber}>{selectedDuration}</Text>
-            <Text style={styles.minutesLabel}>minutes</Text>
-          </View>
-
-          {/* Scrollable Picker */}
-          <View style={styles.pickerWrapper}>
-            <TimerPicker
-              selectedValue={selectedDuration}
-              onValueChange={setSelectedDuration}
-              minValue={1}
-              maxValue={60}
-            />
-          </View>
-
-          {/* Start Session Button */}
-          <TouchableOpacity
-            style={styles.startButton}
-            onPress={handleStartSession}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.startButtonText}>Start Session</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Breathe in for 4, hold for 7, exhale for 8 seconds
-          </Text>
-        </View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleStartSession}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.buttonText}>Start Session</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -76,109 +68,66 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: QuickCalmColors.background,
   },
+
+  // Portrait Layout
   content: {
-    flex: 1,
-    justifyContent: 'space-between',
-    paddingHorizontal: ResponsiveScale.isTablet
-      ? ResponsiveScale.spacing(48, 1.5)
-      : ResponsiveScale.spacing(24),
-    paddingTop: ResponsiveScale.isTablet
-      ? ResponsiveScale.spacing(80, 1.2)
-      : ResponsiveScale.spacing(60),
-    paddingBottom: ResponsiveScale.spacing(40),
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: ResponsiveScale.isTablet
-      ? ResponsiveScale.spacing(40, 1.2)
-      : ResponsiveScale.spacing(60),
-  },
-  title: {
-    fontSize: ResponsiveScale.isTablet
-      ? ResponsiveScale.fontSize(42, 1.5)
-      : ResponsiveScale.fontSize(36),
-    fontWeight: 'bold',
-    color: QuickCalmColors.primaryText,
-    marginBottom: ResponsiveScale.spacing(16),
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: ResponsiveScale.fontSize(18),
-    color: QuickCalmColors.secondaryText,
-    textAlign: 'center',
-    lineHeight: ResponsiveScale.fontSize(26),
-    maxWidth: ResponsiveScale.getMaxTextWidth(),
-  },
-  pickerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: ResponsiveScale.isTablet
-      ? ResponsiveScale.spacing(40, 1.0)
-      : ResponsiveScale.spacing(20),
-    maxWidth: ResponsiveScale.isTablet ? 600 : '100%',
-    alignSelf: 'center',
-    width: '100%',
+    paddingHorizontal: 48, // xl spacing for screen margins
+    gap: 32, // lg spacing between components
   },
-  largeDisplay: {
+
+  // Landscape Layout
+  landscapeContent: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: ResponsiveScale.spacing(24),
+    paddingHorizontal: 48, // xl spacing for screen margins
+    gap: 40, // landscape-specific gap
   },
-  largeNumber: {
-    fontSize: ResponsiveScale.isTablet
-      ? ResponsiveScale.fontSize(72, 1.3)
-      : ResponsiveScale.fontSize(64),
-    fontWeight: '200',
-    color: QuickCalmColors.accent,
-    textAlign: 'center',
-    lineHeight: ResponsiveScale.isTablet
-      ? ResponsiveScale.fontSize(80, 1.3)
-      : ResponsiveScale.fontSize(72),
-  },
-  minutesLabel: {
-    fontSize: ResponsiveScale.isTablet
-      ? ResponsiveScale.fontSize(20, 1.3)
-      : ResponsiveScale.fontSize(18),
-    color: QuickCalmColors.secondaryText,
-    textAlign: 'center',
-    marginTop: ResponsiveScale.spacing(-8),
-  },
-  pickerWrapper: {
+  landscapeTimerSection: {
+    flex: 0.6, // 60% width
+    justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: ResponsiveScale.spacing(24),
   },
-  startButton: {
+  landscapeActionSection: {
+    flex: 0.4, // 40% width
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16, // sm spacing between button and instructions
+  },
+
+  // Standard button - 280px × 48px
+  button: {
     backgroundColor: QuickCalmColors.accent,
-    borderRadius: ResponsiveScale.scale(20),
-    paddingVertical: ResponsiveScale.spacing(16),
-    paddingHorizontal: ResponsiveScale.spacing(48),
-    minWidth: ResponsiveScale.isTablet
-      ? Math.min(ResponsiveScale.scale(300), 400)
-      : ResponsiveScale.getButtonWidth() * 0.8,
+    borderRadius: 12,
+    width: 280,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: QuickCalmColors.accent,
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 2, // Reduced from 4px to 2px
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOpacity: 0.2, // Reduced from 0.3 to 0.2
+    shadowRadius: 4, // Reduced from 8px to 4px
+    elevation: 3, // Reduced from 6 to 3
   },
-  startButtonText: {
-    fontSize: ResponsiveScale.fontSize(18),
+
+  // Typography system
+  buttonText: {
+    fontSize: 16, // Standard button text
     fontWeight: '600',
     color: QuickCalmColors.buttonText,
   },
-  footer: {
-    alignItems: 'center',
-    marginTop: ResponsiveScale.spacing(40),
-  },
-  footerText: {
-    fontSize: ResponsiveScale.fontSize(16),
+  instructions: {
+    fontSize: 14, // Instructions text
     color: QuickCalmColors.secondaryText,
     textAlign: 'center',
-    lineHeight: ResponsiveScale.fontSize(22),
+    lineHeight: 20,
+    maxWidth: 280, // Match button width for alignment
   },
 });

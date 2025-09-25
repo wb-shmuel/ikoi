@@ -18,7 +18,9 @@ interface TimerPickerProps {
   maxValue?: number;
 }
 
-const ITEM_HEIGHT = ResponsiveScale.isTablet ? ResponsiveScale.scale(50, 1.2) : ResponsiveScale.scale(50);
+// Simplified consistent item height
+const ITEM_HEIGHT = 44;
+
 const VISIBLE_ITEMS = 5;
 const PICKER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
 
@@ -33,7 +35,7 @@ export const TimerPicker: React.FC<TimerPickerProps> = ({
   const lastHapticValue = useRef(selectedValue);
   const currentScrollOffset = useRef(0);
 
-  // Calculate center offset for proper positioning
+  // Calculate center offset for proper positioning (needs to be inside component for dynamic values)
   const CENTER_OFFSET = PICKER_HEIGHT / 2 - ITEM_HEIGHT / 2;
 
   // Generate simple data array - only actual values, no padding items
@@ -164,14 +166,8 @@ export const TimerPicker: React.FC<TimerPickerProps> = ({
 const styles = StyleSheet.create({
   container: {
     height: PICKER_HEIGHT,
-    width: ResponsiveScale.isTablet
-      ? Math.min(ResponsiveScale.scale(300), 400)
-      : ResponsiveScale.getButtonWidth() * 0.8,
+    width: 200, // Simplified fixed width
     position: 'relative',
-    backgroundColor: 'rgba(255, 213, 138, 0.05)',
-    borderRadius: ResponsiveScale.scale(20),
-    borderWidth: 1,
-    borderColor: 'rgba(255, 213, 138, 0.15)',
     overflow: 'hidden',
   },
   item: {
@@ -180,9 +176,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemText: {
-    fontSize: ResponsiveScale.isTablet
-      ? ResponsiveScale.fontSize(26, 1.3)
-      : ResponsiveScale.fontSize(26),
+    fontSize: 16, // Consistent with design system
     color: QuickCalmColors.secondaryText,
     fontWeight: '400',
   },

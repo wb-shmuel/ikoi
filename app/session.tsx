@@ -1,4 +1,5 @@
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
+import { useOrientation } from '@/hooks/useOrientation';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio, ResizeMode, Video } from 'expo-av';
 import * as Haptics from 'expo-haptics';
@@ -27,6 +28,7 @@ const SessionScreen: React.FC = () => {
   const totalSeconds = duration * 60;
 
   const router = useRouter();
+  const orientation = useOrientation();
   const [timeRemaining, setTimeRemaining] = useState(totalSeconds);
   const [isPaused, setIsPaused] = useState(false);
   const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
@@ -420,79 +422,116 @@ const SessionScreen: React.FC = () => {
         <View style={styles.overlay} />
       </View>
 
-      {/* Top Bar - Hidden during countdown */}
-      {!isInCountdown && (
-        <View style={styles.topBar}>
-          <Text style={styles.timeText}>
-            {formatTime(timeRemaining)}
-          </Text>
-
-          <TouchableOpacity
-            style={styles.pauseButton}
-            onPress={isPaused ? resumeSession : pauseSession}
-          >
-            <Ionicons
-              name={isPaused ? 'play' : 'pause'}
-              size={ResponsiveScale.fontSize(24)}
-              color="#E6E6E6"
-            />
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Main Content */}
-      <View style={styles.content}>
-        {isInCountdown ? (
-          /* Countdown Phase */
-          <Animated.View style={[styles.countdownContent, countdownStyle]}>
-            <Text style={styles.titleText}>Get Ready</Text>
-            <Text style={styles.subtitleText}>
-              Your {duration}-minute session starts in
+      {/* Landscape Layout */}
+      {orientation.isLandscape && !isInCountdown ? (
+        <>
+          {/* Left Zone (25%) - Back button and timer */}
+          <View style={styles.landscapeLeftZone}>
+            <Text style={styles.landscapeTimeText}>
+              {formatTime(timeRemaining)}
             </Text>
+          </View>
 
-            <View style={styles.timerDisplay}>
-              <Text style={styles.timerText}>
-                {formatTime(totalSeconds)}
-              </Text>
-            </View>
-
-            {/* Countdown Circle */}
-            <View style={styles.countdownCircle}>
-              <Text style={styles.countdownNumber}>
-                {countdownSeconds === 0 ? 'Begin' : countdownSeconds}
-              </Text>
-            </View>
-
-            <Text style={styles.instructionText}>
-              Take a deep breath and prepare to relax
-            </Text>
-          </Animated.View>
-        ) : (
-          /* Session Phase */
-          <>
-            {/* Breathing guide text above circle, below timer */}
-            <Text style={styles.breathingGuideTop}>
-              4s inhale • 7s hold • 8s exhale
-            </Text>
-
-            {/* Breathing Circle - Only visible after countdown */}
-            <Animated.View style={[styles.breathingCircle, breathingStyle]}>
+          {/* Center Zone (50%) - Breathing circle */}
+          <View style={styles.landscapeCenterZone}>
+            <Animated.View style={[styles.landscapeBreathingCircle, breathingStyle]}>
               <View style={styles.circleInner}>
-                <Text style={styles.phaseText}>
+                <Text style={styles.landscapePhaseText}>
                   {getPhaseText()}
                 </Text>
-                <Text style={styles.phaseCounter}>
+                <Text style={styles.landscapePhaseCounter}>
                   {phaseTime}
                 </Text>
               </View>
             </Animated.View>
-          </>
-        )}
-      </View>
+          </View>
+
+          {/* Right Zone (25%) - Phase text and pause button */}
+          <View style={styles.landscapeRightZone}>
+            <TouchableOpacity
+              style={styles.landscapePauseButton}
+              onPress={isPaused ? resumeSession : pauseSession}
+            >
+              <Ionicons
+                name={isPaused ? 'play' : 'pause'}
+                size={ResponsiveScale.fontSize(28)}
+                color="#E6E6E6"
+              />
+            </TouchableOpacity>
+          </View>
+        </>
+      ) : (
+        <>
+          {/* Portrait Layout - Top Bar - Hidden during countdown */}
+          {!isInCountdown && (
+            <View style={styles.topBar}>
+              <Text style={styles.timeText}>
+                {formatTime(timeRemaining)}
+              </Text>
+
+              <TouchableOpacity
+                style={styles.pauseButton}
+                onPress={isPaused ? resumeSession : pauseSession}
+              >
+                <Ionicons
+                  name={isPaused ? 'play' : 'pause'}
+                  size={ResponsiveScale.fontSize(24)}
+                  color="#E6E6E6"
+                />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Portrait Main Content */}
+          <View style={styles.content}>
+            {isInCountdown ? (
+              /* Countdown Phase */
+              <Animated.View style={[styles.countdownContent, countdownStyle]}>
+                <Text style={styles.titleText}>Get Ready</Text>
+                <Text style={styles.subtitleText}>
+                  Your {duration}-minute session starts in
+                </Text>
+
+                <View style={styles.timerDisplay}>
+                  <Text style={styles.timerText}>
+                    {formatTime(totalSeconds)}
+                  </Text>
+                </View>
+
+                {/* Countdown Circle */}
+                <View style={styles.countdownCircle}>
+                  <Text style={styles.countdownNumber}>
+                    {countdownSeconds === 0 ? 'Begin' : countdownSeconds}
+                  </Text>
+                </View>
+
+                <Text style={styles.instructionText}>
+                  Take a deep breath and prepare to relax
+                </Text>
+              </Animated.View>
+            ) : (
+              /* Session Phase */
+              <>
+                {/* Breathing Circle - Only visible after countdown */}
+                <Animated.View style={[styles.breathingCircle, breathingStyle]}>
+                  <View style={styles.circleInner}>
+                    <Text style={styles.phaseText}>
+                      {getPhaseText()}
+                    </Text>
+                    <Text style={styles.phaseCounter}>
+                      {phaseTime}
+                    </Text>
+                  </View>
+                </Animated.View>
+              </>
+            )}
+          </View>
+        </>
+      )}
 
       {/* Bottom End Button - Only show during session when time remaining, not countdown or when timer hits 0 */}
       {!isInCountdown && timeRemaining > 0 && (
-        <View style={styles.bottomButtonContainer}>
+        <View style={orientation.isLandscape ? styles.landscapeBottomButtonContainer : styles.bottomButtonContainer}>
           <TouchableOpacity
             style={styles.finishButton}
             onPress={handleFinishSession}
@@ -678,6 +717,93 @@ const styles = StyleSheet.create({
     color: '#E6E6E6',
     textAlign: 'center',
     marginTop: ResponsiveScale.spacing(40),
+  },
+
+  // Landscape-specific styles
+  landscapeLeftZone: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: '25%' as const,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingTop: ResponsiveScale.spacing(60),
+    paddingHorizontal: ResponsiveScale.spacing(10),
+    zIndex: 10,
+  },
+  landscapeCenterZone: {
+    position: 'absolute',
+    left: '25%' as const,
+    top: 0,
+    bottom: 0,
+    width: '50%' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  landscapeRightZone: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: '25%' as const,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingTop: ResponsiveScale.spacing(60),
+    paddingHorizontal: ResponsiveScale.spacing(10),
+    zIndex: 10,
+  },
+  landscapeTimeText: {
+    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 22 : 18),
+    color: '#E6E6E6',
+    fontWeight: '500',
+    fontFamily: 'monospace',
+  },
+  landscapeBreathingGuide: {
+    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 18 : 16),
+    color: '#A8ADB5',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    marginBottom: ResponsiveScale.spacing(20),
+  },
+  landscapeBreathingCircle: {
+    width: ResponsiveScale.getBreathingCircleSize(),
+    height: ResponsiveScale.getBreathingCircleSize(),
+    borderRadius: ResponsiveScale.getBreathingCircleSize() / 2,
+    borderWidth: 2,
+    borderColor: '#FFD58A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 213, 138, 0.1)',
+  },
+  landscapePhaseText: {
+    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 24 : 20),
+    color: '#E6E6E6',
+    textAlign: 'center',
+    marginBottom: ResponsiveScale.spacing(12),
+    fontWeight: '300',
+  },
+  landscapePhaseCounter: {
+    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 60 : 48),
+    fontWeight: '200',
+    color: '#FFD58A',
+  },
+  landscapePauseButton: {
+    padding: ResponsiveScale.spacing(12),
+    width: ResponsiveScale.scale(52),
+    height: ResponsiveScale.scale(52),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: ResponsiveScale.scale(26),
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  landscapeBottomButtonContainer: {
+    position: 'absolute',
+    bottom: ResponsiveScale.spacing(20),
+    right: ResponsiveScale.spacing(20),
+    alignItems: 'center',
+    zIndex: 20,
   },
 });
 
