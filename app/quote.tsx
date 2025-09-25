@@ -18,13 +18,13 @@ import Animated, {
 
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
-import { Quote } from '@/constants/Quote';
+import { quotes } from '@/constants/Quote';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { QuoteScreenState } from '@/types/QuickCalm';
 
 export default function QuoteScreen() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const [quoteState, setQuoteState] = useState<QuoteScreenState>({
     currentQuote: '',
@@ -45,10 +45,11 @@ export default function QuoteScreen() {
   }));
 
   const initializeQuote = useCallback(() => {
-    // Select a random quote
-    const randomIndex = Math.floor(Math.random() * Quote.length);
-    const selectedQuote = Quote[randomIndex];
-    
+    // Select a random quote from the current language
+    const languageQuotes = quotes[language];
+    const randomIndex = Math.floor(Math.random() * languageQuotes.length);
+    const selectedQuote = languageQuotes[randomIndex];
+
     setQuoteState({
       currentQuote: selectedQuote,
       showContinueHint: false,
@@ -71,7 +72,7 @@ export default function QuoteScreen() {
         })
       );
     }, 2000);
-  }, [hintOpacity, quoteOpacity]);
+  }, [hintOpacity, quoteOpacity, language]);
 
   useEffect(() => {
     initializeQuote();

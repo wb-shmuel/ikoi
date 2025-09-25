@@ -1,9 +1,9 @@
-import { TimerDisplay } from '@/components/TimerDisplay';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { TimerDisplay } from '@/components/TimerDisplay';
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
-import { useOrientation } from '@/hooks/useOrientation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useOrientation } from '@/hooks/useOrientation';
 import type { SessionDuration } from '@/types/QuickCalm';
 import { ResizeMode, Video } from 'expo-av';
 import { useRouter } from 'expo-router';
@@ -101,8 +101,8 @@ export default function DurationPicker() {
           activeOpacity={0.8}
         >
           <View style={styles.buttonTextContainer}>
-            <Text style={styles.buttonText}>{t.start}</Text>
-            <Text style={styles.buttonText}>{t.session}</Text>
+            <Text style={styles.buttonText}>{t.session_button_1}</Text>
+            <Text style={styles.buttonText}>{t.session_button_2}</Text>
           </View>
         </TouchableOpacity>
       </View>

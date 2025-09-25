@@ -3,8 +3,8 @@ export type Language = 'en' | 'ja';
 export interface Translations {
   // Common
   minutes: string;
-  session: string;
-  start: string;
+  session_button_1: string;
+  session_button_2: string;
   end: string;
   pause: string;
   resume: string;
@@ -31,8 +31,8 @@ export const translations: Record<Language, Translations> = {
   en: {
     // Common
     minutes: 'minutes',
-    session: 'Session',
-    start: 'Start',
+    session_button_2: 'Session',
+    session_button_1: 'Start',
     end: 'End',
     pause: 'Pause',
     resume: 'Resume',
@@ -57,8 +57,8 @@ export const translations: Record<Language, Translations> = {
   ja: {
     // Common
     minutes: '分',
-    session: '開始',
-    start: 'セッション',
+    session_button_2: '開始',
+    session_button_1: 'セッション',
     end: 'End',
     pause: 'Pause',
     resume: 'Resume',
