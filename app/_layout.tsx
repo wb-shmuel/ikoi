@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import 'react-native-reanimated';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -14,13 +15,13 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <LanguageProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="session" />
         <Stack.Screen name="quote" />
       </Stack>
       <StatusBar style="light" backgroundColor="#0F1115" />
-    </>
+    </LanguageProvider>
   );
 }

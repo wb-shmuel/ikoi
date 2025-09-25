@@ -2,6 +2,7 @@ import { TimerPicker } from '@/components/TimerPicker';
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import { useOrientation } from '@/hooks/useOrientation';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { SessionDuration } from '@/types/QuickCalm';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -16,6 +17,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
   onValueChange,
 }) => {
   const orientation = useOrientation();
+  const { t } = useLanguage();
 
   return (
     <View style={[
@@ -37,7 +39,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
           styles.minutesLabel,
           orientation.isLandscape && styles.landscapeMinutesLabel
         ]}>
-          minutes
+          {t.minutes}
         </Text>
       </View>
 

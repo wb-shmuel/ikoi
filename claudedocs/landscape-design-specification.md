@@ -264,7 +264,6 @@ const LandscapeFonts = {
 
   // Session Screen
   timer: { phone: 24, tablet: 32 },
-  breathingGuide: { phone: 18, tablet: 22 },
   phaseText: { phone: 28, tablet: 36 },
   phaseCounter: { phone: 64, tablet: 96 },
   endButton: { phone: 20, tablet: 24 }

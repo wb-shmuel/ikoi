@@ -1,7 +1,9 @@
 import { TimerDisplay } from '@/components/TimerDisplay';
+import { LanguageSelector } from '@/components/LanguageSelector';
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import { useOrientation } from '@/hooks/useOrientation';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { SessionDuration } from '@/types/QuickCalm';
 import { ResizeMode, Video } from 'expo-av';
 import { useRouter } from 'expo-router';
@@ -11,6 +13,7 @@ import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-na
 export default function DurationPicker() {
   const router = useRouter();
   const orientation = useOrientation();
+  const { t } = useLanguage();
   const [selectedDuration, setSelectedDuration] = useState<SessionDuration>(3);
 
   const handleStartSession = () => {
@@ -36,6 +39,11 @@ export default function DurationPicker() {
         {/* Dark overlay for better UI visibility - temporarily disabled for testing */}
         {/* <View style={styles.videoOverlay} /> */}
 
+        {/* Language Selector - Top Right */}
+        <View style={styles.languageSelectorContainer}>
+          <LanguageSelector />
+        </View>
+
         <View style={styles.landscapeContent}>
           <View style={styles.landscapeTimerSection}>
             <TimerDisplay
@@ -51,8 +59,8 @@ export default function DurationPicker() {
               activeOpacity={0.8}
             >
               <View style={styles.buttonTextContainer}>
-                <Text style={styles.buttonText}>Start</Text>
-                <Text style={styles.buttonText}>Session</Text>
+                <Text style={styles.buttonText}>{t.start}</Text>
+                <Text style={styles.buttonText}>{t.session}</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -76,6 +84,11 @@ export default function DurationPicker() {
       {/* Dark overlay for better UI visibility - temporarily disabled for testing */}
       {/* <View style={styles.videoOverlay} /> */}
 
+      {/* Language Selector - Top Right */}
+      <View style={styles.languageSelectorContainer}>
+        <LanguageSelector />
+      </View>
+
       <View style={styles.content}>
         <TimerDisplay
           selectedValue={selectedDuration}
@@ -88,8 +101,8 @@ export default function DurationPicker() {
           activeOpacity={0.8}
         >
           <View style={styles.buttonTextContainer}>
-            <Text style={styles.buttonText}>Start</Text>
-            <Text style={styles.buttonText}>Session</Text>
+            <Text style={styles.buttonText}>{t.start}</Text>
+            <Text style={styles.buttonText}>{t.session}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -101,6 +114,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: QuickCalmColors.background,
+  },
+  languageSelectorContainer: {
+    position: 'absolute',
+    top: ResponsiveScale.spacing(60),
+    right: ResponsiveScale.spacing(20),
+    zIndex: 20,
   },
 
   // Background video styles

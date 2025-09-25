@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -19,10 +19,12 @@ import Animated, {
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import { Quote } from '@/constants/Quote';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { QuoteScreenState } from '@/types/QuickCalm';
 
 export default function QuoteScreen() {
   const router = useRouter();
+  const { t } = useLanguage();
   
   const [quoteState, setQuoteState] = useState<QuoteScreenState>({
     currentQuote: '',
@@ -42,11 +44,7 @@ export default function QuoteScreen() {
     opacity: hintOpacity.value,
   }));
 
-  useEffect(() => {
-    initializeQuote();
-  }, []);
-
-  const initializeQuote = () => {
+  const initializeQuote = useCallback(() => {
     // Select a random quote
     const randomIndex = Math.floor(Math.random() * Quote.length);
     const selectedQuote = Quote[randomIndex];
@@ -73,7 +71,11 @@ export default function QuoteScreen() {
         })
       );
     }, 2000);
-  };
+  }, [hintOpacity, quoteOpacity]);
+
+  useEffect(() => {
+    initializeQuote();
+  }, [initializeQuote]);
 
   const handleScreenTap = () => {
     // Navigate back to home (index screen)
@@ -107,7 +109,7 @@ export default function QuoteScreen() {
           {/* Continue Hint */}
           {quoteState.showContinueHint && (
             <Animated.View style={[styles.hintContainer, hintStyle]}>
-              <Text style={styles.hintText}>Tap to continue</Text>
+              <Text style={styles.hintText}>{t.tapToContinue}</Text>
             </Animated.View>
           )}
         </View>

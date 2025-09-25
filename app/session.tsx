@@ -1,4 +1,5 @@
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useOrientation } from '@/hooks/useOrientation';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio, ResizeMode, Video } from 'expo-av';
@@ -29,6 +30,7 @@ const SessionScreen: React.FC = () => {
 
   const router = useRouter();
   const orientation = useOrientation();
+  const { t, formatT } = useLanguage();
   const [timeRemaining, setTimeRemaining] = useState(totalSeconds);
   const [isPaused, setIsPaused] = useState(false);
   const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
@@ -71,11 +73,11 @@ const SessionScreen: React.FC = () => {
   const getPhaseText = () => {
     switch (breathingPhase) {
       case 'inhale':
-        return 'Take a deep breath';
+        return t.takeDeepBreath;
       case 'hold':
-        return 'Stop breathing';
+        return t.stopBreathing;
       case 'exhale':
-        return 'Exhale';
+        return t.exhale;
       default:
         return '';
     }
@@ -429,22 +431,18 @@ const SessionScreen: React.FC = () => {
             /* Landscape Countdown Phase */
             <Animated.View style={[styles.landscapeCountdownContainer, countdownStyle]}>
               <Text style={styles.landscapeSubtitleText}>
-                Your {duration}-minute session starts in
+                {formatT('sessionStartsIn', { duration: duration.toString() })}
               </Text>
 
               {/* Unified Landscape Countdown Circle with all text inside */}
               <View style={styles.landscapeCountdownCircle}>
                 <View style={styles.circleInner}>
-                  <Text style={styles.landscapeCountdownPhaseText}>Get Ready</Text>
+                  <Text style={styles.landscapeCountdownPhaseText}>{t.getReady}</Text>
                   <Text style={styles.landscapeCountdownNumber}>
-                    {countdownSeconds === 0 ? 'Begin' : countdownSeconds}
+                    {countdownSeconds === 0 ? t.begin : countdownSeconds}
                   </Text>
                 </View>
               </View>
-
-              <Text style={styles.landscapeInstructionText}>
-                Take a deep breath and prepare to relax
-              </Text>
             </Animated.View>
           ) : (
             /* Landscape Session Phase */
@@ -510,7 +508,7 @@ const SessionScreen: React.FC = () => {
               /* Countdown Phase */
               <Animated.View style={[styles.countdownContent, countdownStyle]}>
                 <Text style={styles.subtitleText}>
-                  Your {duration}-minute session starts in
+                  {formatT('sessionStartsIn', { duration: duration.toString() })}
                 </Text>
 
                 <View style={styles.timerDisplay}>
@@ -522,16 +520,12 @@ const SessionScreen: React.FC = () => {
                 {/* Unified Countdown Circle with all text inside */}
                 <View style={styles.countdownCircle}>
                   <View style={styles.circleInner}>
-                    <Text style={styles.countdownPhaseText}>Get Ready</Text>
+                    <Text style={styles.countdownPhaseText}>{t.getReady}</Text>
                     <Text style={styles.countdownNumber}>
-                      {countdownSeconds === 0 ? 'Begin' : countdownSeconds}
+                      {countdownSeconds === 0 ? t.begin : countdownSeconds}
                     </Text>
                   </View>
                 </View>
-
-                <Text style={styles.instructionText}>
-                  Take a deep breath and prepare to relax
-                </Text>
               </Animated.View>
             ) : (
               /* Session Phase */
@@ -561,7 +555,7 @@ const SessionScreen: React.FC = () => {
             onPress={handleFinishSession}
           >
             <Text style={[styles.finishButtonText, { color: '#FFFFFF' }]}>
-              End
+              {t.end}
             </Text>
           </TouchableOpacity>
         </View>
@@ -652,13 +646,6 @@ const styles = StyleSheet.create({
     fontSize: ResponsiveScale.fontSize(48),
     fontWeight: '200',
     color: '#FFD58A',
-  },
-  breathingGuideTop: {
-    fontSize: ResponsiveScale.fontSize(14),
-    color: 'rgba(168, 173, 181, 0.8)',
-    textAlign: 'center',
-    fontStyle: 'italic',
-    marginBottom: ResponsiveScale.spacing(24),
   },
   finishButton: {
     paddingHorizontal: ResponsiveScale.spacing(20),
@@ -777,14 +764,6 @@ const styles = StyleSheet.create({
     color: '#E6E6E6',
     fontWeight: '500',
     fontFamily: 'monospace',
-  },
-  landscapeBreathingGuide: {
-    fontSize: ResponsiveScale.fontSize(ResponsiveScale.isTablet ? 16 : 14),
-    color: '#A8ADB5',
-    textAlign: 'center',
-    fontStyle: 'italic',
-    marginBottom: ResponsiveScale.spacing(24),
-    opacity: 0.8,
   },
   landscapeBreathingCircle: {
     width: ResponsiveScale.isTablet ? 320 : 260,
