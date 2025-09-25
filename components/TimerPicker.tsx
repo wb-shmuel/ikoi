@@ -1,5 +1,6 @@
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
+import { useOrientation } from '@/hooks/useOrientation';
 import * as Haptics from 'expo-haptics';
 import React, { useCallback, useEffect, useRef } from 'react';
 import {
@@ -30,6 +31,7 @@ export const TimerPicker: React.FC<TimerPickerProps> = ({
   minValue = 1,
   maxValue = 60,
 }) => {
+  const orientation = useOrientation();
   const flatListRef = useRef<FlatList>(null);
   const isScrolling = useRef(false);
   const lastHapticValue = useRef(selectedValue);
@@ -118,6 +120,7 @@ export const TimerPicker: React.FC<TimerPickerProps> = ({
       <View style={styles.item}>
         <Text style={[
           styles.itemText,
+          orientation.isLandscape && styles.landscapeItemText,
           { opacity },
           isSelected && styles.selectedText
         ]}>
@@ -125,7 +128,7 @@ export const TimerPicker: React.FC<TimerPickerProps> = ({
         </Text>
       </View>
     );
-  }, [selectedValue, calculateOpacity]);
+  }, [selectedValue, calculateOpacity, orientation.isLandscape]);
 
   return (
     <View style={styles.container}>
@@ -200,5 +203,10 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth * 2,
     backgroundColor: QuickCalmColors.accent,
     opacity: 0.4,
+  },
+
+  // Landscape-specific styles
+  landscapeItemText: {
+    fontSize: ResponsiveScale.fontSize(14, 1.8), // Smaller font size for picker numbers in landscape
   },
 });

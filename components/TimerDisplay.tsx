@@ -57,21 +57,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255, 213, 138, 0.08)',
     borderRadius: ResponsiveScale.scale(12),
-    paddingVertical: ResponsiveScale.spacing(24),
-    paddingHorizontal: ResponsiveScale.spacing(32),
+    paddingVertical: ResponsiveScale.spacing(20),
+    paddingHorizontal: ResponsiveScale.spacing(24),
   },
   timerHeader: {
     alignItems: 'center',
-    marginBottom: ResponsiveScale.spacing(24),
+    marginBottom: ResponsiveScale.spacing(20),
   },
   timerNumber: {
-    fontSize: ResponsiveScale.fontSize(48, 2.2),
+    fontSize: ResponsiveScale.fontSize(36, 2.0),
     fontWeight: '300',
     color: QuickCalmColors.accent,
     textAlign: 'center',
   },
   minutesLabel: {
-    fontSize: ResponsiveScale.fontSize(18, 2.0),
+    fontSize: ResponsiveScale.fontSize(14, 1.8),
     color: QuickCalmColors.secondaryText,
     textAlign: 'center',
     marginTop: ResponsiveScale.spacing(4), // 4px gap for tight coupling
@@ -87,11 +87,11 @@ const styles = StyleSheet.create({
     marginBottom: ResponsiveScale.spacing(16), // Reduce spacing in landscape
   },
   landscapeTimerNumber: {
-    fontSize: ResponsiveScale.isTablet ? 36 : 32, // Smaller font size in landscape for better fit
+    fontSize: ResponsiveScale.isTablet ? 48 : 42, // Larger font size for the selected time in landscape
     fontWeight: '400', // Slightly bolder for better visibility
   },
   landscapeMinutesLabel: {
-    fontSize: ResponsiveScale.isTablet ? 16 : 14, // Smaller label in landscape
+    fontSize: ResponsiveScale.isTablet ? 18 : 16, // Larger label in landscape
     marginTop: ResponsiveScale.spacing(2), // Tighter coupling in landscape
   },
 });
