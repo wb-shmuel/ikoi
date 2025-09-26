@@ -3,7 +3,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useOrientation } from '@/hooks/useOrientation';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Audio, ResizeMode, Video } from 'expo-av';
+import { VideoView, useVideoPlayer } from 'expo-video';
+import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -43,8 +44,12 @@ const SessionScreen: React.FC = () => {
   const [isInCountdown, setIsInCountdown] = useState(true);
   const [countdownSeconds, setCountdownSeconds] = useState(3);
 
-  const videoRef = useRef<Video>(null);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const videoPlayer = useVideoPlayer(require('@/assets/videos/candle.mp4'), player => {
+    player.loop = true;
+    player.play();
+  });
+
+  const audioPlayer = useAudioPlayer(require('@/assets/audio/music.mp3'));
   const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const appStateRef = useRef(AppState.currentState);
@@ -223,31 +228,10 @@ const SessionScreen: React.FC = () => {
       // Keep screen awake
       await activateKeepAwakeAsync();
 
-      // Configure audio session for background playback
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        staysActiveInBackground: true,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: false,
-        playThroughEarpieceAndroid: false,
-      });
-
-      // Load and start audio during countdown
-      console.log('Loading and starting audio...');
-      const { sound } = await Audio.Sound.createAsync(
-        require('@/assets/audio/music.mp3'),
-        {
-          shouldPlay: false,
-          isLooping: true,
-          volume: 0,
-        }
-      );
-
-      soundRef.current = sound;
-
       // Start audio with fade-in during countdown
-      await sound.setVolumeAsync(0);
-      await sound.playAsync();
+      audioPlayer.loop = true;
+      audioPlayer.volume = 0;
+      audioPlayer.play();
 
       // Fade in audio over 1.5 seconds to volume 0.55
       const fadeSteps = 30;
@@ -256,7 +240,7 @@ const SessionScreen: React.FC = () => {
 
       for (let i = 0; i <= fadeSteps; i++) {
         const volume = (i / fadeSteps) * targetVolume;
-        await sound.setVolumeAsync(volume);
+        audioPlayer.volume = volume;
         await new Promise(resolve => setTimeout(resolve, fadeInterval));
       }
 
@@ -367,13 +351,8 @@ const SessionScreen: React.FC = () => {
       clearInterval(phaseTimerRef.current);
     }
 
-    if (soundRef.current) {
-      soundRef.current.pauseAsync();
-    }
-
-    if (videoRef.current) {
-      videoRef.current.pauseAsync();
-    }
+    audioPlayer.pause();
+    videoPlayer.pause();
   };
 
   const resumeSession = () => {
@@ -381,13 +360,8 @@ const SessionScreen: React.FC = () => {
     startSessionTimer();
     startBreathingCycle();
 
-    if (soundRef.current) {
-      soundRef.current.playAsync();
-    }
-
-    if (videoRef.current) {
-      videoRef.current.playAsync();
-    }
+    audioPlayer.play();
+    videoPlayer.play();
   };
 
   const handleSessionEnd = async () => {
@@ -400,34 +374,23 @@ const SessionScreen: React.FC = () => {
     // Clear saved session state
     await clearSessionState();
 
-    // Stop and clean up video
-    if (videoRef.current) {
-      try {
-        await videoRef.current.stopAsync();
-        await videoRef.current.unloadAsync();
-      } catch (error) {
-        console.log('Video cleanup error:', error);
-      }
-    }
+    // Stop video
+    videoPlayer.pause();
 
     // Fade out and stop audio
-    if (soundRef.current) {
-      try {
-        const fadeSteps = 24;
-        const fadeInterval = 1200 / fadeSteps;
+    try {
+      const fadeSteps = 24;
+      const fadeInterval = 1200 / fadeSteps;
 
-        for (let i = fadeSteps; i >= 0; i--) {
-          const volume = (i / fadeSteps) * 0.55;
-          await soundRef.current.setVolumeAsync(volume);
-          await new Promise(resolve => setTimeout(resolve, fadeInterval));
-        }
-
-        await soundRef.current.stopAsync();
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
-      } catch (error) {
-        console.log('Audio cleanup error:', error);
+      for (let i = fadeSteps; i >= 0; i--) {
+        const volume = (i / fadeSteps) * 0.55;
+        audioPlayer.volume = volume;
+        await new Promise(resolve => setTimeout(resolve, fadeInterval));
       }
+
+      audioPlayer.pause();
+    } catch (error) {
+      console.log('Audio cleanup error:', error);
     }
 
     // Clean up keep awake
@@ -456,12 +419,10 @@ const SessionScreen: React.FC = () => {
 
         // Don't pause the session or stop music - let it continue in background
         // Only pause video to save resources
-        if (videoRef.current) {
-          try {
-            await videoRef.current.pauseAsync();
-          } catch (error) {
-            console.log('Video pause error on background:', error);
-          }
+        try {
+          videoPlayer.pause();
+        } catch (error) {
+          console.log('Video pause error on background:', error);
         }
       } else if (nextAppState === 'active' && appStateRef.current === 'background') {
         // App returning from background - restore state and resume video
@@ -469,8 +430,8 @@ const SessionScreen: React.FC = () => {
 
         try {
           // Resume video
-          if (videoRef.current && !isPaused) {
-            await videoRef.current.playAsync();
+          if (!isPaused) {
+            videoPlayer.play();
           }
 
           // Calculate elapsed time in background
@@ -496,7 +457,7 @@ const SessionScreen: React.FC = () => {
     return () => {
       subscription?.remove();
     };
-  }, [isPaused, backgroundTimestamp, saveSessionState]);
+  }, [isPaused, backgroundTimestamp, saveSessionState, videoPlayer]);
 
   // Initialize session with state restoration
   useEffect(() => {
@@ -531,17 +492,12 @@ const SessionScreen: React.FC = () => {
       cleanupTimers();
       clearSessionState();
 
-      // Clean up video
-      if (videoRef.current) {
-        videoRef.current.stopAsync().catch(() => {});
-        videoRef.current.unloadAsync().catch(() => {});
-      }
-
-      // Clean up audio
-      if (soundRef.current) {
-        soundRef.current.stopAsync().catch(() => {});
-        soundRef.current.unloadAsync().catch(() => {});
-        soundRef.current = null;
+      // Clean up video and audio
+      try {
+        videoPlayer.pause();
+        audioPlayer.pause();
+      } catch (error) {
+        console.log('Media cleanup error:', error);
       }
 
       deactivateKeepAwake();
@@ -553,14 +509,12 @@ const SessionScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       {/* Background Video */}
       <View style={styles.videoContainer}>
-        <Video
-          ref={videoRef}
-          source={require('@/assets/videos/candle.mp4')}
+        <VideoView
           style={styles.video}
-          resizeMode={ResizeMode.COVER}
-          shouldPlay={true}
-          isLooping={true}
-          isMuted={true}
+          player={videoPlayer}
+          contentFit="cover"
+          allowsFullscreen={false}
+          allowsPictureInPicture={false}
         />
 
         {/* Dark overlay for better UI visibility */}

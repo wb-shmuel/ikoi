@@ -26,7 +26,12 @@ export function useOrientation(): OrientationInfo {
       setDimensions({ width: window.width, height: window.height });
     });
 
-    return () => subscription?.remove();
+    return () => {
+      // React Native 0.79.6 compatibility: subscription might be an EventSubscription
+      if (subscription?.remove) {
+        subscription.remove();
+      }
+    };
   }, []);
 
   const orientation: Orientation = dimensions.width > dimensions.height ? 'landscape' : 'portrait';

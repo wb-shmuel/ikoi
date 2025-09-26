@@ -5,16 +5,21 @@ import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useOrientation } from '@/hooks/useOrientation';
 import type { SessionDuration } from '@/types/QuickCalm';
-import { ResizeMode, Video } from 'expo-av';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function DurationPicker() {
+const DurationPicker: React.FC = () => {
   const router = useRouter();
   const orientation = useOrientation();
   const { t } = useLanguage();
   const [selectedDuration, setSelectedDuration] = useState<SessionDuration>(3);
+
+  const player = useVideoPlayer(require('@/assets/videos/candle_turn_on.mp4'), player => {
+    player.loop = true;
+    player.play();
+  });
 
   const handleStartSession = () => {
     router.push({
@@ -27,13 +32,12 @@ export default function DurationPicker() {
     return (
       <SafeAreaView style={styles.container}>
         {/* Background candle video */}
-        <Video
-          source={require('@/assets/videos/candle_turn_on.mp4')}
+        <VideoView
           style={styles.backgroundVideo}
-          shouldPlay
-          isLooping
-          isMuted
-          resizeMode={ResizeMode.COVER}
+          player={player}
+          contentFit="cover"
+          allowsFullscreen={false}
+          allowsPictureInPicture={false}
         />
 
         {/* Dark overlay for better UI visibility - temporarily disabled for testing */}
@@ -75,13 +79,12 @@ export default function DurationPicker() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Background candle video */}
-      <Video
-        source={require('@/assets/videos/candle_turn_on.mp4')}
+      <VideoView
         style={styles.backgroundVideo}
-        shouldPlay
-        isLooping
-        isMuted
-        resizeMode={ResizeMode.COVER}
+        player={player}
+        contentFit="cover"
+        allowsFullscreen={false}
+        allowsPictureInPicture={false}
       />
 
       {/* Dark overlay for better UI visibility - temporarily disabled for testing */}
@@ -115,7 +118,9 @@ export default function DurationPicker() {
       </View>
     </SafeAreaView>
   );
-}
+};
+
+export default DurationPicker;
 
 const styles = StyleSheet.create({
   container: {

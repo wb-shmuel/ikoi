@@ -7,7 +7,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Video, ResizeMode } from 'expo-av';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -22,9 +22,14 @@ import { quotes } from '@/constants/Quote';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { QuoteScreenState } from '@/types/QuickCalm';
 
-export default function QuoteScreen() {
+const QuoteScreen: React.FC = () => {
   const router = useRouter();
   const { t, language } = useLanguage();
+
+  const videoPlayer = useVideoPlayer(require('@/assets/videos/candle_turn_out.mp4'), player => {
+    player.loop = false;
+    player.play();
+  });
   
   const [quoteState, setQuoteState] = useState<QuoteScreenState>({
     currentQuote: '',
@@ -94,13 +99,12 @@ export default function QuoteScreen() {
     <TouchableWithoutFeedback onPress={handleScreenTap}>
       <SafeAreaView style={styles.container}>
         {/* Background candle turn out video */}
-        <Video
-          source={require('@/assets/videos/candle_turn_out.mp4')}
+        <VideoView
           style={styles.backgroundVideo}
-          shouldPlay
-          isLooping={false}
-          isMuted
-          resizeMode={ResizeMode.COVER}
+          player={videoPlayer}
+          contentFit="cover"
+          allowsFullscreen={false}
+          allowsPictureInPicture={false}
         />
 
         {/* Dark overlay for better text visibility */}
@@ -124,7 +128,9 @@ export default function QuoteScreen() {
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
-}
+};
+
+export default QuoteScreen;
 
 const styles = StyleSheet.create({
   container: {

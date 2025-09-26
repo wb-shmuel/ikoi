@@ -44,6 +44,7 @@ const getDeviceLanguage = (): Language => {
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [language, setCurrentLanguage] = useState<Language>('en');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadSavedLanguage();
@@ -65,6 +66,8 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       // Fallback to device language
       const deviceLanguage = getDeviceLanguage();
       setCurrentLanguage(deviceLanguage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,6 +89,11 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     }
     return text;
   };
+
+  // Don't render children until language context is loaded
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <LanguageContext.Provider

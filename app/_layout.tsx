@@ -2,10 +2,9 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import 'react-native-reanimated';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 
-export default function RootLayout() {
+const RootLayout: React.FC = () => {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -24,4 +23,6 @@ export default function RootLayout() {
       <StatusBar style="light" backgroundColor="#0F1115" />
     </LanguageProvider>
   );
-}
+};
+
+export default RootLayout;
