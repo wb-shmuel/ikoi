@@ -1,13 +1,13 @@
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useOrientation } from '@/hooks/useOrientation';
-import { Ionicons } from '@expo/vector-icons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { VideoView, useVideoPlayer } from 'expo-video';
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AppState,
@@ -26,6 +26,19 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const SessionScreen: React.FC = () => {
+  // Icon helper - using MaterialIcons for reliable play/pause icons
+  const PlayPauseIcon = ({ isPaused, size, color }: { isPaused: boolean; size: number; color: string }) => {
+    const iconName = isPaused ? 'play-circle' : 'pause';
+    console.log('Rendering icon:', iconName, 'isPaused:', isPaused);
+
+    return (
+      <AntDesign
+        name={iconName as any}
+        size={size}
+        color={color}
+      />
+    );
+  };
   const { duration: durationParam } = useLocalSearchParams();
   const duration = parseInt(durationParam as string, 10);
   const totalSeconds = duration * 60;
@@ -550,8 +563,8 @@ const SessionScreen: React.FC = () => {
                   style={styles.landscapePauseButton}
                   onPress={isPaused ? resumeSession : pauseSession}
                 >
-                  <Ionicons
-                    name={isPaused ? 'play' : 'pause'}
+                  <PlayPauseIcon
+                    isPaused={isPaused}
                     size={ResponsiveScale.fontSize(24)}
                     color="#E6E6E6"
                   />
@@ -587,8 +600,8 @@ const SessionScreen: React.FC = () => {
                 style={styles.pauseButton}
                 onPress={isPaused ? resumeSession : pauseSession}
               >
-                <Ionicons
-                  name={isPaused ? 'play' : 'pause'}
+                <PlayPauseIcon
+                  isPaused={isPaused}
                   size={ResponsiveScale.fontSize(24)}
                   color="#E6E6E6"
                 />

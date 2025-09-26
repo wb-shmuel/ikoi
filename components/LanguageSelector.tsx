@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  StyleSheet,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { Language } from '@/constants/Languages';
 import { QuickCalmColors } from '@/constants/QuickCalmColors';
 import { ResponsiveScale } from '@/constants/ResponsiveScale';
+import { useLanguage } from '@/contexts/LanguageContext';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import React, { useState } from 'react';
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export const LanguageSelector: React.FC = () => {
   const { language, setLanguage } = useLanguage();
@@ -34,7 +34,7 @@ export const LanguageSelector: React.FC = () => {
         onPress={() => setIsModalVisible(true)}
         activeOpacity={0.8}
       >
-        <Ionicons name="language" size={24} color={QuickCalmColors.secondaryText} />
+        <AntDesign name="global" size={24} color={QuickCalmColors.secondaryText} />
       </TouchableOpacity>
 
       {/* Language Selection Modal */}
@@ -53,7 +53,7 @@ export const LanguageSelector: React.FC = () => {
                   style={styles.closeButton}
                   onPress={() => setIsModalVisible(false)}
                 >
-                  <Ionicons name="close" size={24} color={QuickCalmColors.primaryText} />
+                  <AntDesign name="close" size={24} color={QuickCalmColors.primaryText} />
                 </TouchableOpacity>
               </View>
 
@@ -83,8 +83,8 @@ export const LanguageSelector: React.FC = () => {
                       </Text>
                     </View>
                     {language === lang.code && (
-                      <Ionicons
-                        name="checkmark"
+                      <AntDesign
+                        name="check"
                         size={20}
                         color={QuickCalmColors.accent}
                       />
