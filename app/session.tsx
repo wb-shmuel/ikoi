@@ -29,7 +29,6 @@ const SessionScreen: React.FC = () => {
   // Icon helper - using MaterialIcons for reliable play/pause icons
   const PlayPauseIcon = ({ isPaused, size, color }: { isPaused: boolean; size: number; color: string }) => {
     const iconName = isPaused ? 'play-circle' : 'pause';
-    console.log('Rendering icon:', iconName, 'isPaused:', isPaused);
 
     return (
       <AntDesign
