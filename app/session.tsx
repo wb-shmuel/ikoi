@@ -58,6 +58,7 @@ const SessionScreen: React.FC = () => {
 
   const videoPlayer = useVideoPlayer(require('@/assets/videos/candle.mp4'), player => {
     player.loop = true;
+    player.muted = true; // Mute the candle video to prevent flame sound
     player.play();
   });
 
