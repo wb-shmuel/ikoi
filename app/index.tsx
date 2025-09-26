@@ -7,7 +7,7 @@ import { useOrientation } from '@/hooks/useOrientation';
 import type { SessionDuration } from '@/types/QuickCalm';
 import { ResizeMode, Video } from 'expo-av';
 import { useRouter } from 'expo-router';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function DurationPicker() {
@@ -15,16 +15,6 @@ export default function DurationPicker() {
   const orientation = useOrientation();
   const { t } = useLanguage();
   const [selectedDuration, setSelectedDuration] = useState<SessionDuration>(3);
-  const [layoutKey, setLayoutKey] = useState(0);
-
-  // Fix layout dimensions after component mount (addresses startup orientation issues)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLayoutKey(prev => prev + 1);
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleStartSession = () => {
     router.push({

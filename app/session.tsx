@@ -2,11 +2,12 @@ import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useOrientation } from '@/hooks/useOrientation';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio, ResizeMode, Video } from 'expo-av';
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AppState,
   AppStateStatus,
@@ -36,18 +37,17 @@ const SessionScreen: React.FC = () => {
   const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
   const [phaseTime, setPhaseTime] = useState(4); // Start with 4 seconds for inhale
   const [isSessionActive, setIsSessionActive] = useState(true);
+  const [backgroundTimestamp, setBackgroundTimestamp] = useState<number | null>(null);
 
   // Countdown state
   const [isInCountdown, setIsInCountdown] = useState(true);
   const [countdownSeconds, setCountdownSeconds] = useState(3);
 
-  // Force re-render key for layout fixes
-  const [layoutKey, setLayoutKey] = useState(0);
-
   const videoRef = useRef<Video>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
   const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const appStateRef = useRef(AppState.currentState);
 
   // Breathing animation
   const breathingScale = useSharedValue(1);
@@ -100,6 +100,91 @@ const SessionScreen: React.FC = () => {
     }
   };
 
+  // Session state management
+  const saveSessionState = useCallback(async () => {
+    try {
+      const sessionState = {
+        timeRemaining,
+        breathingPhase,
+        phaseTime,
+        isPaused,
+        isInCountdown,
+        countdownSeconds,
+        isSessionActive,
+        timestamp: Date.now(),
+        duration: duration,
+      };
+
+      await AsyncStorage.setItem('@session_state', JSON.stringify(sessionState));
+      console.log('Session state saved:', sessionState);
+    } catch (error) {
+      console.error('Failed to save session state:', error);
+    }
+  }, [timeRemaining, breathingPhase, phaseTime, isPaused, isInCountdown, countdownSeconds, isSessionActive, duration]);
+
+  const restoreSessionState = useCallback(async (): Promise<boolean> => {
+    try {
+      const savedState = await AsyncStorage.getItem('@session_state');
+      if (!savedState) return false;
+
+      const sessionState = JSON.parse(savedState);
+      const timeDiff = Date.now() - sessionState.timestamp;
+
+      // If more than 5 minutes have passed, don't restore
+      if (timeDiff > 5 * 60 * 1000) {
+        await AsyncStorage.removeItem('@session_state');
+        return false;
+      }
+
+      // Only restore if it's the same duration session
+      if (sessionState.duration !== duration) {
+        await AsyncStorage.removeItem('@session_state');
+        return false;
+      }
+
+      console.log('Restoring session state:', sessionState);
+
+      setTimeRemaining(sessionState.timeRemaining);
+      setBreathingPhase(sessionState.breathingPhase);
+      setPhaseTime(sessionState.phaseTime);
+      setIsPaused(sessionState.isPaused);
+      setIsInCountdown(sessionState.isInCountdown);
+      setCountdownSeconds(sessionState.countdownSeconds);
+      setIsSessionActive(sessionState.isSessionActive);
+
+      return true;
+    } catch (error) {
+      console.error('Failed to restore session state:', error);
+      return false;
+    }
+  }, [duration]);
+
+  const clearSessionState = useCallback(async () => {
+    try {
+      await AsyncStorage.removeItem('@session_state');
+      console.log('Session state cleared');
+    } catch (error) {
+      console.error('Failed to clear session state:', error);
+    }
+  }, []);
+
+  // Clean up all timers safely
+  const cleanupTimers = useCallback(() => {
+    console.log('Cleaning up timers...');
+
+    if (sessionTimerRef.current) {
+      clearInterval(sessionTimerRef.current);
+      sessionTimerRef.current = null;
+      console.log('Session timer cleared');
+    }
+
+    if (phaseTimerRef.current) {
+      clearInterval(phaseTimerRef.current);
+      phaseTimerRef.current = null;
+      console.log('Phase timer cleared');
+    }
+  }, []);
+
   // Breathing animation for each phase
   const startPhaseAnimation = (phase: 'inhale' | 'hold' | 'exhale') => {
     const duration = getPhaseDuration(phase) * 1000;
@@ -138,12 +223,12 @@ const SessionScreen: React.FC = () => {
       // Keep screen awake
       await activateKeepAwakeAsync();
 
-      // Configure audio session
+      // Configure audio session for background playback
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
-        staysActiveInBackground: false,
+        staysActiveInBackground: true,
         playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
+        shouldDuckAndroid: false,
         playThroughEarpieceAndroid: false,
       });
 
@@ -306,15 +391,14 @@ const SessionScreen: React.FC = () => {
   };
 
   const handleSessionEnd = async () => {
+    console.log('Ending session...');
     setIsSessionActive(false);
 
     // Clean up timers
-    if (sessionTimerRef.current) {
-      clearInterval(sessionTimerRef.current);
-    }
-    if (phaseTimerRef.current) {
-      clearInterval(phaseTimerRef.current);
-    }
+    cleanupTimers();
+
+    // Clear saved session state
+    await clearSessionState();
 
     // Stop and clean up video
     if (videoRef.current) {
@@ -359,12 +443,52 @@ const SessionScreen: React.FC = () => {
     handleSessionEnd();
   };
 
-  // Handle app state changes
+  // Handle app state changes with improved lifecycle management
   useEffect(() => {
-    const handleAppStateChange = (nextAppState: AppStateStatus) => {
-      if (nextAppState === 'background' && !isPaused) {
-        pauseSession();
+    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+      console.log('App state changing from', appStateRef.current, 'to', nextAppState);
+
+      if (nextAppState === 'background') {
+        // App going to background - save state and continue music
+        console.log('App going to background, saving state...');
+        setBackgroundTimestamp(Date.now());
+        await saveSessionState();
+
+        // Don't pause the session or stop music - let it continue in background
+        // Only pause video to save resources
+        if (videoRef.current) {
+          try {
+            await videoRef.current.pauseAsync();
+          } catch (error) {
+            console.log('Video pause error on background:', error);
+          }
+        }
+      } else if (nextAppState === 'active' && appStateRef.current === 'background') {
+        // App returning from background - restore state and resume video
+        console.log('App returning from background, restoring state...');
+
+        try {
+          // Resume video
+          if (videoRef.current && !isPaused) {
+            await videoRef.current.playAsync();
+          }
+
+          // Calculate elapsed time in background
+          const backgroundTime = backgroundTimestamp ? Date.now() - backgroundTimestamp : 0;
+          console.log('Time spent in background:', backgroundTime, 'ms');
+
+        } catch (error) {
+          console.error('Error restoring from background:', error);
+        }
+
+        setBackgroundTimestamp(null);
+      } else if (nextAppState === 'inactive') {
+        // App becoming inactive (e.g., phone call, lock screen)
+        console.log('App becoming inactive');
+        await saveSessionState();
       }
+
+      appStateRef.current = nextAppState;
     };
 
     const subscription = AppState.addEventListener('change', handleAppStateChange);
@@ -372,39 +496,45 @@ const SessionScreen: React.FC = () => {
     return () => {
       subscription?.remove();
     };
-  }, [isPaused]);
+  }, [isPaused, backgroundTimestamp, saveSessionState]);
 
-  // Fix layout dimensions after component mount (addresses startup orientation issues)
+  // Initialize session with state restoration
   useEffect(() => {
-    // Small delay to ensure Dimensions.get() returns correct values
-    const timer = setTimeout(() => {
-      setLayoutKey(prev => prev + 1);
-    }, 100);
+    const initializeSession = async () => {
+      console.log('Initializing session...');
 
-    return () => clearTimeout(timer);
-  }, []);
+      // Try to restore previous session state first
+      const wasRestored = await restoreSessionState();
 
-  // Initialize media and start countdown on component mount
-  useEffect(() => {
-    initializeMedia();
-    startCountdown();
+      if (wasRestored) {
+        console.log('Session state restored, resuming from saved position');
+        await initializeMedia();
+
+        // Resume session timers if it was active and not paused
+        if (isSessionActive && !isPaused && !isInCountdown) {
+          startSessionTimer();
+          startBreathingCycle();
+        }
+      } else {
+        console.log('No valid session state found, starting fresh');
+        await initializeMedia();
+        startCountdown();
+      }
+    };
+
+    initializeSession();
 
     // Cleanup on unmount
     return () => {
+      console.log('Component unmounting, cleaning up...');
       setIsSessionActive(false);
-
-      if (sessionTimerRef.current) {
-        clearInterval(sessionTimerRef.current);
-      }
-      if (phaseTimerRef.current) {
-        clearInterval(phaseTimerRef.current);
-      }
+      cleanupTimers();
+      clearSessionState();
 
       // Clean up video
       if (videoRef.current) {
         videoRef.current.stopAsync().catch(() => {});
         videoRef.current.unloadAsync().catch(() => {});
-        videoRef.current = null;
       }
 
       // Clean up audio

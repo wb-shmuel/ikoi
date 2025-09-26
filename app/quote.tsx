@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -44,7 +44,9 @@ export default function QuoteScreen() {
     opacity: hintOpacity.value,
   }));
 
-  const initializeQuote = useCallback(() => {
+  useEffect(() => {
+    console.log('Quote screen mounted or language changed:', language);
+
     // Select a random quote from the current language
     const languageQuotes = quotes[language];
     const randomIndex = Math.floor(Math.random() * languageQuotes.length);
@@ -55,6 +57,10 @@ export default function QuoteScreen() {
       showContinueHint: false,
     });
 
+    // Reset animation values first
+    quoteOpacity.value = 0;
+    hintOpacity.value = 0;
+
     // Animate quote appearance
     quoteOpacity.value = withTiming(1, {
       duration: 1000,
@@ -62,7 +68,7 @@ export default function QuoteScreen() {
     });
 
     // Show continue hint after a delay
-    setTimeout(() => {
+    const hintTimer = setTimeout(() => {
       setQuoteState(prev => ({ ...prev, showContinueHint: true }));
       hintOpacity.value = withDelay(
         500,
@@ -72,11 +78,12 @@ export default function QuoteScreen() {
         })
       );
     }, 2000);
-  }, [hintOpacity, quoteOpacity, language]);
 
-  useEffect(() => {
-    initializeQuote();
-  }, [initializeQuote]);
+    // Cleanup function
+    return () => {
+      clearTimeout(hintTimer);
+    };
+  }, [language, hintOpacity, quoteOpacity]); // Only depend on necessary values
 
   const handleScreenTap = () => {
     // Navigate back to home (index screen)
