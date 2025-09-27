@@ -3,7 +3,7 @@
 **Be Bored** is a minimal, mindful breathing app that embraces the power of boredom.
 In just a few minutes, you can calm your mind, slow down, and reset.
 
-📱 Available on [App Store](#) (coming soon)
+📱 Available on [App Store](https://apps.apple.com/jp/app/just-be-bored/id6752449031) 
 
 ---
 
