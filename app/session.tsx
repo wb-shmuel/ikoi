@@ -528,6 +528,9 @@ const SessionScreen: React.FC = () => {
           contentFit="cover"
           allowsFullscreen={false}
           allowsPictureInPicture={false}
+          showsTimecodes={false}
+          requiresLinearPlayback={true}
+          nativeControls={false}
         />
 
         {/* Dark overlay for better UI visibility */}

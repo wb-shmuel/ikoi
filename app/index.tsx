@@ -5,8 +5,8 @@ import { ResponsiveScale } from '@/constants/ResponsiveScale';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useOrientation } from '@/hooks/useOrientation';
 import type { SessionDuration } from '@/types/QuickCalm';
-import { VideoView, useVideoPlayer } from 'expo-video';
 import { useRouter } from 'expo-router';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -38,6 +38,9 @@ const DurationPicker: React.FC = () => {
           contentFit="cover"
           allowsFullscreen={false}
           allowsPictureInPicture={false}
+          showsTimecodes={false}
+          requiresLinearPlayback={true}
+          nativeControls={false}
         />
 
         {/* Dark overlay for better UI visibility - temporarily disabled for testing */}
@@ -85,6 +88,9 @@ const DurationPicker: React.FC = () => {
         contentFit="cover"
         allowsFullscreen={false}
         allowsPictureInPicture={false}
+        showsTimecodes={false}
+        requiresLinearPlayback={true}
+        nativeControls={false}
       />
 
       {/* Dark overlay for better UI visibility - temporarily disabled for testing */}
