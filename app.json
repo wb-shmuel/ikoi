@@ -2,7 +2,7 @@
   "expo": {
     "name": "Be Bored",
     "slug": "bebored",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "default",
     "icon": "./assets/images/icon-1024.png",
     "scheme": "be-bored",
@@ -29,7 +29,8 @@
           "UIInterfaceOrientationLandscapeLeft",
           "UIInterfaceOrientationLandscapeRight"
         ]
-      }
+      },
+      "buildNumber": "2"
     },
     "android": {
       "package": "com.arise.bebored",
